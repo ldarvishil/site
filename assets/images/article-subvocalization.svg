@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" direction="rtl">
+  <rect width="640" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+
+  <!-- Top Title -->
+  <text x="320" y="34" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14.5" font-weight="800">مقایسه عصب‌شناختی «مسیر صوتی سنتی» در برابر «مسیر مستقیم دیداری»</text>
+
+  <!-- TOP LANE: Traditional Subvocalization Bottleneck -->
+  <rect x="24" y="52" width="592" height="104" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5" />
+  <text x="598" y="76" text-anchor="start" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">۱. الگوی سنتی (با گفتار باطنی و تلفظ ذهنی کلمات):</text>
+
+  <rect x="486" y="92" width="110" height="44" rx="8" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" />
+  <text x="541" y="119" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="700">تک‌کلمه‌خوانی چشم</text>
+
+  <text x="466" y="119" text-anchor="middle" fill="#dc2626" font-size="16" font-weight="800">←</text>
+
+  <rect x="304" y="92" width="142" height="44" rx="8" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.8" />
+  <text x="375" y="113" text-anchor="middle" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">گلوگاه گفتار باطنی</text>
+  <text x="375" y="129" text-anchor="middle" fill="#b91c1c" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(تلفظ ذهنی تک‌تک حروف)</text>
+
+  <text x="284" y="119" text-anchor="middle" fill="#dc2626" font-size="16" font-weight="800">←</text>
+
+  <rect x="42" y="92" width="222" height="44" rx="8" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" />
+  <text x="153" y="113" text-anchor="middle" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">سقف سرعت: ۱۸۰ تا ۲۵۰ WPM</text>
+  <text x="153" y="129" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(محدود به سرعت تکلم انسان)</text>
+
+  <!-- BOTTOM LANE: Direct Visual Pathway -->
+  <rect x="24" y="172" width="592" height="106" rx="10" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5" />
+  <text x="598" y="196" text-anchor="start" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">۲. الگوی تندخوانی علمی (هدایتگر دیداری + دریافت بسته‌ای):</text>
+
+  <rect x="466" y="212" width="130" height="46" rx="8" fill="#ffffff" stroke="#047857" stroke-width="1.8" />
+  <text x="531" y="233" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">دریافت بسته‌ای</text>
+  <text x="531" y="249" text-anchor="middle" fill="#047857" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="700">(۳ تا ۵ کلمه در یک نگاه)</text>
+
+  <text x="444" y="240" text-anchor="middle" fill="#047857" font-size="16" font-weight="800">←</text>
+
+  <rect x="292" y="212" width="132" height="46" rx="8" fill="#ffffff" stroke="#047857" stroke-width="1.8" />
+  <text x="358" y="233" text-anchor="middle" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">قشر بینایی مغز</text>
+  <text x="358" y="249" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(پردازش مستقیم معنا)</text>
+
+  <text x="270" y="240" text-anchor="middle" fill="#047857" font-size="16" font-weight="800">←</text>
+
+  <rect x="42" y="212" width="208" height="46" rx="8" fill="#047857" />
+  <text x="146" y="233" text-anchor="middle" fill="#ffffff" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">جهش سرعت: ۴۵۰ تا ۶۵۰+ WPM</text>
+  <text x="146" y="249" text-anchor="middle" fill="#a7f3d0" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="700">(با درک مطلب پایدار ۷۵٪ تا ۸۵٪)</text>
+</svg>

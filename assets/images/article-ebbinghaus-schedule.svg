@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" direction="rtl">
+  <rect width="640" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+
+  <text x="320" y="34" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14.5" font-weight="800">چرخه ۴ مرور طلایی ابینگهاوس برای انتقال اطلاعات به حافظه بلندمدت</text>
+
+  <!-- 4 Timeline Cards from Right (Step 1) to Left (Step 4) -->
+  <!-- Step 1 -->
+  <rect x="478" y="58" width="138" height="176" rx="10" fill="#ffffff" stroke="#b45309" stroke-width="2" />
+  <rect x="494" y="72" width="106" height="26" rx="13" fill="#fef3c7" />
+  <text x="547" y="90" text-anchor="middle" fill="#78350f" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">مرور اول</text>
+  <text x="547" y="124" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14" font-weight="800">۱۰ تا ۲۰ دقیقه بعد</text>
+  <text x="547" y="152" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">بلافاصله پس از پایان</text>
+  <text x="547" y="170" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">فصل روی نقشه ذهنی</text>
+  <rect x="494" y="192" width="106" height="26" rx="6" fill="#fffbeb" stroke="#fde68a" />
+  <text x="547" y="209" text-anchor="middle" fill="#92400e" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="800">زمان: ۳ دقیقه</text>
+
+  <!-- Step 2 -->
+  <rect x="326" y="58" width="138" height="176" rx="10" fill="#ffffff" stroke="#047857" stroke-width="2" />
+  <rect x="342" y="72" width="106" height="26" rx="13" fill="#ecfdf5" />
+  <text x="395" y="90" text-anchor="middle" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">مرور دوم</text>
+  <text x="395" y="124" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14" font-weight="800">۲۴ ساعت بعد</text>
+  <text x="395" y="152" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">بازیابی فعال کلیدواژه‌ها</text>
+  <text x="395" y="170" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">فردای روز مطالعه</text>
+  <rect x="342" y="192" width="106" height="26" rx="6" fill="#ecfdf5" stroke="#a7f3d0" />
+  <text x="395" y="209" text-anchor="middle" fill="#047857" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="800">زمان: ۵ دقیقه</text>
+
+  <!-- Step 3 -->
+  <rect x="174" y="58" width="138" height="176" rx="10" fill="#ffffff" stroke="#1e3a8a" stroke-width="2" />
+  <rect x="190" y="72" width="106" height="26" rx="13" fill="#eff6ff" />
+  <text x="243" y="90" text-anchor="middle" fill="#1e3a8a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">مرور سوم</text>
+  <text x="243" y="124" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14" font-weight="800">۷ روز بعد</text>
+  <text x="243" y="152" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">اسکن تصویری شاخه‌ها</text>
+  <text x="243" y="170" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">در پایان هفته اول</text>
+  <rect x="190" y="192" width="106" height="26" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+  <text x="243" y="209" text-anchor="middle" fill="#1e3a8a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="800">زمان: ۳ دقیقه</text>
+
+  <!-- Step 4 -->
+  <rect x="22" y="58" width="138" height="176" rx="10" fill="#0f172a" stroke="#0f172a" stroke-width="2" />
+  <rect x="38" y="72" width="106" height="26" rx="13" fill="#b45309" />
+  <text x="91" y="90" text-anchor="middle" fill="#ffffff" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">مرور چهارم</text>
+  <text x="91" y="124" text-anchor="middle" fill="#fde68a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14" font-weight="800">۳۰ روز بعد</text>
+  <text x="91" y="152" text-anchor="middle" fill="#e2e8f0" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">تثبیت دائمی در</text>
+  <text x="91" y="170" text-anchor="middle" fill="#e2e8f0" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="600">حافظه بلندمدت</text>
+  <rect x="38" y="192" width="106" height="26" rx="6" fill="#1e293b" stroke="#475569" />
+  <text x="91" y="209" text-anchor="middle" fill="#fde68a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="11.5" font-weight="800">زمان: ۲ دقیقه</text>
+
+  <!-- Bottom Summary Strip -->
+  <rect x="22" y="248" width="594" height="36" rx="8" fill="#ecfdf5" stroke="#a7f3d0" />
+  <text x="320" y="271" text-anchor="middle" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">نتیجه: تنها با ۱۳ دقیقه مرور هدفمند در طول یک ماه، بیش از ۸۵٪ مطالب برای روز آزمون حفظ می‌شود.</text>
+</svg>

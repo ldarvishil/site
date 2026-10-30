@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /_preview/
+
+# Sitemap location
+Sitemap: https://azazmind.ir/sitemap.xml
