@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون استاندارد سرعت مطالعه و شاخص درک مطلب</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --font-main: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        * {
+            font-family: var(--font-main) !important;
+        }
+        body {
+            font-family: var(--font-main) !important;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        button, input, select, textarea, table, th, td {
+            font-family: var(--font-main) !important;
+        }
+        .prevent-cheat {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        /* Custom Reader Surface Styles */
+        .reader-text {
+            transition: font-size 0.2s ease, line-height 0.2s ease;
+        }
+        .guide-ruler {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 38px;
+            background: rgba(59, 130, 246, 0.08);
+            border-top: 1px dashed rgba(59, 130, 246, 0.35);
+            border-bottom: 1px dashed rgba(59, 130, 246, 0.35);
+            pointer-events: none;
+            transition: top 0.08s ease-out;
+            display: none;
+        }
+        /* Subtle Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Header Navigation -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
+                    RS
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">سنجش جامع سرعت و درک مطلب</h1>
+                    <p class="text-[11px] text-slate-500 font-medium">پروتکل دو‌مرحله‌ای ارزیابی توانش مطالعه فارسی</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="fullscreenToggleBtn" class="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all text-xs font-medium flex items-center gap-1.5" title="کلید تمام‌صفحه">
+                    <i class="fa-solid fa-expand text-[11px]"></i>
+                    <span class="hidden sm:inline">تمام‌صفحه</span>
+                </button>
+
+                <button id="toggleHistoryBtn" class="h-9 px-3.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-800 transition-all text-xs font-medium flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-simple text-[11px] text-slate-600"></i>
+                    <span>سوابق و نمودار</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        
+        <!-- Application Mountpoint -->
+        <div id="readingAppContainer" class="bg-white rounded-2xl border border-slate-200 shadow-[0_4px_24px_-4px_rgba(15,23,42,0.06)] overflow-hidden transition-all duration-200">
+            <!-- Dynamic Component Views will render here -->
+        </div>
+
+        <!-- History & Analytics Drawer Section -->
+        <section id="historySection" class="hidden mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-7 transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-5">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-slate-500 text-sm"></i>
+                        سوابق آزمون‌ها و شاخص پیشرفت
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">آمار مقایسه‌ای سرعت چشمی و سرعت مطالعه موثر</p>
+                </div>
+                <button id="clearHistoryBtn" class="text-xs text-rose-600 hover:text-rose-700 font-medium px-2.5 py-1.5 rounded-md hover:bg-rose-50 transition-colors">
+                    <i class="fa-regular fa-trash-can ml-1"></i>حذف تاریخچه
+                </button>
+            </div>
+
+            <!-- Chart -->
+            <div class="w-full h-64 sm:h-72 mb-6">
+                <canvas id="progressChart"></canvas>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto border border-slate-100 rounded-xl">
+                <table class="w-full text-right text-xs">
+                    <thead>
+                        <tr class="bg-slate-50/80 text-slate-600 border-b border-slate-200/70 font-semibold">
+                            <th class="py-3 px-3.5">تاریخ</th>
+                            <th class="py-3 px-3.5">تعداد واژگان</th>
+                            <th class="py-3 px-3.5">سرعت اسکن چشمی (WPM)</th>
+                            <th class="py-3 px-3.5">درک مطلب</th>
+                            <th class="py-3 px-3.5">سرعت مؤثر ادراکی</th>
+                            <th class="py-3 px-3.5">ارزیابی عملکرد</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-slate-100 text-slate-700">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-5 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>سامانه سنجش مهارت خوانش و درک مطلب متن فارسی</span>
+            <span class="text-[11px] text-slate-400">فرمول سرعت مؤثر: <span class="font-mono text-slate-500">WPM × Comprehension %</span></span>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        /**
+         * بانک متون استانداردسازی‌شده بر اساس سطح سختی یکسان (۲۸۰ الی ۳۵۰ کلمه)
+         * دسته‌بندی شده در دو دسته: فاز اسکن چشمی (بدون درک) و فاز مطالعه عمیق (همراه با درک مطلب)
+         */
+        const SCAN_TEXT_BANK = [
+            {
+                id: "scan_1",
+                title: "شگفتی‌های ناشناخته زیست‌شناسی اعماق اقیانوس‌ها",
+                text: "ژرفای اقیانوس‌ها یکی از کم‌شناخته‌شده‌ترین و اسرارآمیزترین زیست‌بوم‌های کره زمین محسوب می‌شود. در ژرفای بیش از دو هزار متری، جایی که نور خورشید توان نفوذ ندارد و تاریکی مطلق حکم‌فرماست، جاندارانی با سازگاری‌های زیستی خارق‌العاده حیات یافته‌اند. فشار خردکننده آب در این لایه‌ها صدها برابر فشار هوا در سطح زمین است، با این حال ساختار انعطاف‌پذیر بافت‌ها و پروتئین‌های سلولی ویژه، از متلاشی شدن این موجودات جلوگیری می‌کند. یکی از جذاب‌ترین سازوکارهای تکاملی در این قلمرو تاریک، پدیده تولید نور زیستی یا بیولومینسانس است. بسیاری از ماهیان مرکب، چترهای دریایی و شکارچیان ترسناک اعماق، از اندام‌های نورافشان خود نه تنها برای فریب طعمه‌ها بلکه به منظور جفت‌یابی و اعلام خطر به هم‌نوعان استفاده می‌کنند. علاوه بر این، در پیرامون دهانه‌های گرمابی زیردریایی، جریان‌های غنی از گوگرد و متان باعث شکل‌گیری زنجیره‌های غذایی مستقل از نور خورشید شده‌اند. در این سامانه‌ها باکتری‌های شیمیوسنتزکننده جایگزین گیاهان شده و مواد شیمیایی را به قندهای زیستی تبدیل می‌نمایند. دانشمندان بر این باورند که درک سازوکار بقای زیست در چنین شرایط سهمگین، می‌تواند کلید کشف نشانه‌های حیات احتمالی در اقمار یخ‌زده منظومه شمسی نظیر انسلادوس باشد."
+            },
+            {
+                id: "scan_2",
+                title: "پدیدارشناسی معماری بومی در اقلیم‌های کویری",
+                text: "معماری سنتی مناطق گرم و خشک ایران از شاهکارهای خردورزی انسان در سازگاری با طبیعت خشن و کم‌باران به شمار می‌رود. در ساخت این سازه‌ها، استادکاران کهن بدون دسترسی به ابزارهای مکانیکی مدرن و سوخت‌های فسیلی، سامانه‌های خنک‌کننده طبیعی خارق‌العاده‌ای ابداع نمودند. برجسته‌ترین نماد این تدبیر مهندسی، بادگیرها هستند. بادگیرها با هدایت نسیم‌های ملایم مرتفع به درون اتاق‌ها و عبور دادن آن از روی حوضچه‌های سرداب، کورانی خنک و مطبوع از طریق سرمایش تبخیری پدید می‌آوردند. همچنین دیوارهای قطور ساخته‌شده از خشت خام و کاهگل، با ظرفیت گرمایی شگفت‌انگیز خود مانع نفوذ حرارت داغ روز به داخل خانه می‌شدند و در سرمای خشک شبانگاه، این گرمای ذخیره‌شده را به آرامی به فضای داخلی بازمی‌تاباندند. کوچه‌های سرپوشیده و پیچ‌درپیچ که با نام ساباط شناخته می‌شوند، نه‌تنها از رهگذران در برابر تابش سوزان آفتاب ظهر محافظت می‌کردند، بلکه باعث شکستن تندبادهای شن و کاهش گردوغبار در بافت شهری می‌شدند. این الگوهای معماری هم‌اکنون به عنوان مرجعی الهام‌بخش در طراحی ساختمان‌های پایدار، دوستدار محیط زیست و کم‌مصرف در دانشگاه‌های معتبر جهان مورد پژوهش گسترده قرار دارند."
+            }
+        ];
+
+        const COMPREHENSION_TEXT_BANK = [
+            {
+                id: "comp_1",
+                title: "روان‌شناسی تصمیم‌گیری و خطاهای شناختی ذهن",
+                text: "ذهن انسان با وجود پیشرفت‌های شگرف فکری، در فرایند قضاوت و تصمیم‌گیری تحت تاثیر خطاهای شناختی نظام‌مند قرار دارد. بر اساس نظریه دوگانه اندیشیدن، انسان دارای دو سامانه پردازشی است؛ سامانه نخست که شهودی، خودکار و با سرعت فوق‌العاده عمل می‌کند و سامانه دوم که منطقی، کند، تحلیلی و نیازمند صرف انرژی ذهنی فراوان است. بسیاری از لغزش‌های تصمیم‌گیری زمانی رخ می‌دهند که سامانه نخست به جای سامانه دوم فرماندهی اندیشه را به دست می‌گیرد. یکی از شناخته‌شده‌ترین این دام‌ها، «خطای تایید» است؛ گرایشی ناخودآگاه که در آن فرد صرفاً به جستجو و پذیرش شواهدی می‌پردازد که باورهای پیشین او را تایید کنند و اطلاعات متناقض را به سادگی نادیده می‌گیرد. خطای دیگر «لنگراندازی» نام دارد که طی آن، نخستین عدد یا اطلاعی که ذهن دریافت می‌کند مبنای تخمین‌های بعدی قرار می‌گیرد، حتی اگر آن داده کاملاً بی‌ربط باشد. همچنین «خطای هزینه غرق‌شده» باعث می‌شود افراد به سرمایه‌گذاری روی پروژه‌های ناموفق کاری یا روابط فرسایشی ادامه دهند صرفاً به دلیل منابع مالی یا زمانی که در گذشته برای آن فدا کرده‌اند. شناخت این خطاهای پنهان گامی حیاتی در بهبود مدیریت فردی و تصمیم‌گیری‌های کلان سازمانی به شمار می‌رود.",
+                questions: [
+                    {
+                        type: "multiple_choice",
+                        question: "بر اساس متن، ویژگی اصلی «سامانه نخست» در مدل دوگانه اندیشیدن چیست؟",
+                        options: ["کند، تحلیلی و با تمرکز بالا", "خودکار، شهودی و بسیار سریع", "مبتنی بر منطق ریاضی و بدون خطا", "وابسته به صرف انرژی ذهنی زیاد"],
+                        correctAnswer: 1
+                    },
+                    {
+                        type: "fill_in_the_blank",
+                        question: "گرایش ناخودآگاه به پذیرش شواهدی که فقط باورهای پیشین فرد را تایید می‌کند، خطای [...] نام دارد.",
+                        options: ["لنگراندازی", "هزینه غرق‌شده", "تایید", "دسترس‌پذیری"],
+                        correctAnswer: 2
+                    },
+                    {
+                        type: "true_false",
+                        question: "در پدیده «خطای لنگراندازی»، ذهن همواره نخستین داده ورودی را مبنای محاسبات بعدی قرار می‌دهد.",
+                        options: ["صحیح است", "غلط است"],
+                        correctAnswer: 0
+                    },
+                    {
+                        type: "multiple_choice",
+                        question: "علت اصلی تداوم سرمایه‌گذاری در پروژه‌های شکست‌خورده بر اثر خطای هزینه غرق‌شده چیست؟",
+                        options: ["اطمینان قطعی از سودآوری آینده", "عدم دسترسی به منابع جدید مالی", "حسرت و تعصب روی منابع و زمانِ ازدست‌رفته گذشته", "توصیه‌های تحلیلگران و مشاوران"],
+                        correctAnswer: 2
+                    },
+                    {
+                        type: "true_false",
+                        question: "سامانه دوم اندیشیدن بدون هیچ‌گونه نیاز به صرف انرژی شناختی و به شکل خودکار عمل می‌کند.",
+                        options: ["صحیح است", "غلط است"],
+                        correctAnswer: 1
+                    },
+                    {
+                        type: "fill_in_the_blank",
+                        question: "بسیاری از اشتباهات قضاوت زمانی رخ می‌دهد که سامانه نخست به جای سامانه [...] هدایت ذهن را به عهده می‌گیرد.",
+                        options: ["دوم (تحلیلی)", "هیجانی", "خودکار", "ناخودآگاه"],
+                        correctAnswer: 0
+                    },
+                    {
+                        type: "multiple_choice",
+                        question: "هدف نهایی نویسنده از تشریح خطاهای شناختی چیست؟",
+                        options: ["اثبات ناکارآمدی ساختار مغز انسان", "ترویج تصمیم‌گیری صرفاً با حدس‌های شهودی", "ارتقای کیفیت تصمیم‌گیری‌های فردی و مدیریتی با شناخت تله‌های ذهن", "جایگزینی کامل هوش مصنوعی با مدیران"],
+                        correctAnswer: 2
+                    }
+                ]
+            },
+            {
+                id: "comp_2",
+                title: "انقلاب ریززیواگان (میکروبیوم) و سلامت جامع نگر انسان",
+                text: "در دهه‌های گذشته پزشکی نوین میکروب‌ها را صرفاً عوامل بیماری‌زا می‌پنداشت، اما کشف ژرفای میکروبیوم دستگاه گوارش این دیدگاه را دگرگون کرد. بدن انسان میزبان تریلیون‌ها باکتری، قارچ و ویروس مفید است که وزن کل آن‌ها گاه به بیش از دو کیلوگرم می‌رسد. این همزیستان میکروبی نه‌تنها در هضم فیبرهای پیچیده غذایی و سنتز ویتامین‌های حیاتی مانند ویتامین کا و ب۱۲ نقشی کلیدی ایفا می‌کنند، بلکه با ترشح مواد شیمیایی مستقیماً بر سیستم ایمنی و واکنش‌های التهابی نظارت دارند. ارتباط میان روده و مغز که به محور روده-مغز مشهور است، یکی از هیجان‌انگیزترین عرصه‌های دانش معاصر است. جالب اینکه حدود نود درصد از انتقال‌دهنده عصبی سروتونین که تنظیم‌کننده خلق‌وخو و احساس شادی است، در لوله گوارش و تحت تاثیر فعالیت این باکتری‌ها تولید می‌شود. رژیم‌های غذایی غنی از مواد فرآوری‌شده، استرس مزمن و مصرف بی‌رویه آنتی‌بیوتیک‌ها، این تعادل زیستی ظریف را برهم می‌زند؛ اختلالی که به نام دیس‌بیوزیس شناخته شده و با افسردگی، چاقی و بیماری‌های خودایمنی مرتبط دانسته می‌شود. بنابراین تغذیه متنوع با فیبرهای پروبیوتیک، ضامن شادابی روانی و جسمانی است.",
+                questions: [
+                    {
+                        type: "multiple_choice",
+                        question: "دیدگاه جدید علم پزشکی در مقایسه با گذشته درباره میکروب‌های بدن چیست؟",
+                        options: ["همه میکروب‌ها باید با آنتی‌بیوتیک از بین بروند", "میکروب‌های مفید نقش اساسی در حفظ سلامت و ایمنی بدن دارند", "میکروب‌ها نقشی در تولید ویتامین‌ها ندارند", "میکروبیوم تنها در شرایط بیماری ایجاد می‌شود"],
+                        correctAnswer: 1
+                    },
+                    {
+                        type: "fill_in_the_blank",
+                        question: "حدود نود درصد از انتقال‌دهنده عصبی [...] که مسئول تنظیم خلق‌وخو و شادی است در روده ساخته می‌شود.",
+                        options: ["دوپامین", "آدرنالین", "سروتونین", "ملاتونین"],
+                        correctAnswer: 2
+                    },
+                    {
+                        type: "true_false",
+                        question: "باکتری‌های روده قادرند در سنتز ویتامین‌های حیاتی نظیر ویتامین K نقش مستقیم داشته باشند.",
+                        options: ["صحیح است", "غلط است"],
+                        correctAnswer: 0
+                    },
+                    {
+                        type: "fill_in_the_blank",
+                        question: "برهم‌خوردن تعادل ظریف میکروبی روده به اصطلاح پزشکی [...] نامیده می‌شود.",
+                        options: ["دیس‌بیوزیس", "شیمیوسنتز", "بیولومینسانس", "هومئوستازی"],
+                        correctAnswer: 0
+                    },
+                    {
+                        type: "multiple_choice",
+                        question: "کدام عامل از عوامل آسیب‌رسان به تنوع باکتری‌های سودمند روده در متن شمرده شده است؟",
+                        options: ["مصرف غذاهای حاوی فیبر گیاهی", "ورزش مداوم و خواب کافی", "مصرف بی‌رویه آنتی‌بیوتیک و غذاهای فرآوری‌شده", "نوشیدن آب تصفیه شده"],
+                        correctAnswer: 2
+                    },
+                    {
+                        type: "true_false",
+                        question: "طبق متن، هیچ‌گونه ارتباط شیمیایی یا عصبی مستقیمی میان دستگاه گوارش و مغز وجود ندارد.",
+                        options: ["صحیح است", "غلط است"],
+                        correctAnswer: 1
+                    },
+                    {
+                        type: "multiple_choice",
+                        question: "میکروبیوم دستگاه گوارش چگونه بر روی چاقی و خلق‌وخوی انسان تاثیر می‌گذارد؟",
+                        options: ["از طریق تنظیم سوخت‌وساز، ترشح سروتونین و ارتباط محور روده-مغز", "تنها با ایجاد سیری کاذب در ساعات شب", "با تخریب کامل اسیدهای آمینه ضروری", "با تغییر رنگ پوست"],
+                        correctAnswer: 0
+                    }
+                ]
+            }
+        ];
+
+        /**
+         * کلاس کامپوننت مستقل سنجش تفکیکی
+         */
+        class ReadingSpeedTest {
+            constructor(containerId, options = {}) {
+                this.container = document.getElementById(containerId);
+                this.scanTextBank = options.scanTextBank || SCAN_TEXT_BANK;
+                this.comprehensionTextBank = options.comprehensionTextBank || COMPREHENSION_TEXT_BANK;
+                this.onComplete = options.onComplete || null;
+
+                // مراحل: 'intro' | 'reading_scan' | 'scan_done' | 'reading_deep' | 'quiz' | 'result'
+                this.state = 'intro';
+                
+                // وضعیت تنظیمات خواننده
+                this.readerFontSize = 17; // px
+                this.guideRulerActive = false;
+
+                // داده‌های فاز ۱ (بدون درک)
+                this.scanData = null;
+                this.scanStartTime = 0;
+                this.scanElapsedSeconds = 0;
+                this.scanWordCount = 0;
+                this.scanWpm = 0;
+
+                // داده‌های فاز ۲ (با درک)
+                this.deepData = null;
+                this.deepStartTime = 0;
+                this.deepElapsedSeconds = 0;
+                this.deepWordCount = 0;
+                this.deepWpm = 0;
+                this.activeQuestions = [];
+                this.userAnswers = {};
+
+                this.timerInterval = null;
+
+                this.bindAntiCheatMethods();
+                this.render();
+            }
+
+            static countFarsiWords(text) {
+                if (!text || typeof text !== 'string') return 0;
+                const cleanText = text
+                    .replace(/[\u200C\u200B]/g, ' ')
+                    .replace(/[.,،؛:!؟?()\[\]{}"'\-_/\\«»]/g, ' ')
+                    .trim();
+                return cleanText.split(/\s+/).filter(word => word.length > 0).length;
+            }
+
+            static getProficiencyLevel(wpm) {
+                if (wpm < 200) {
+                    return { level: "کندخوان", color: "text-amber-700 bg-amber-50 border-amber-200", badge: "نیاز به تقویت تمرکز و کاهش مکث" };
+                } else if (wpm >= 200 && wpm <= 300) {
+                    return { level: "متوسط (طبیعی)", color: "text-slate-800 bg-slate-100 border-slate-300", badge: "نزدیک به میانگین جامعه دانشگاهی" };
+                } else if (wpm > 300 && wpm <= 400) {
+                    return { level: "خواننده ماهر", color: "text-blue-800 bg-blue-50 border-blue-200", badge: "تسلط عالی بر گروه‌بندی کلمات" };
+                } else {
+                    return { level: "تندخوان پیشرفته", color: "text-emerald-800 bg-emerald-50 border-emerald-200", badge: "توانایی بالا در پردازش ادراکی هم‌زمان" };
+                }
+            }
+
+            // فاز ۱: شروع اسکن سریع چشمی
+            startScanTest() {
+                const randScan = this.scanTextBank[Math.floor(Math.random() * this.scanTextBank.length)];
+                this.scanData = randScan;
+                this.scanWordCount = ReadingSpeedTest.countFarsiWords(randScan.text);
+                
+                this.state = 'reading_scan';
+                this.scanStartTime = performance.now();
+                this.render();
+                window.scrollTo({ top: this.container.offsetTop - 20, behavior: 'smooth' });
+                this.startTimer('scanLiveTimer', this.scanStartTime);
+                this.attachReaderTools('scanContentBox', 'scanRuler');
+                this.enableAntiCheat();
+            }
+
+            finishScanTest() {
+                const endTime = performance.now();
+                this.scanElapsedSeconds = Math.max(1, (endTime - this.scanStartTime) / 1000);
+                this.scanWpm = Math.round((this.scanWordCount / this.scanElapsedSeconds) * 60);
+                this.stopTimer();
+                this.disableAntiCheat();
+                
+                this.state = 'scan_done';
+                this.render();
+                window.scrollTo({ top: this.container.offsetTop - 20, behavior: 'smooth' });
+            }
+
+            // فاز ۲: شروع مطالعه عمیق تحلیلی
+            startDeepReading() {
+                const randDeep = this.comprehensionTextBank[Math.floor(Math.random() * this.comprehensionTextBank.length)];
+                this.deepData = randDeep;
+                this.deepWordCount = ReadingSpeedTest.countFarsiWords(randDeep.text);
+                
+                // بر هم زدن تصادفی ترتیب سوالات (Shuffle)
+                this.activeQuestions = [...randDeep.questions].sort(() => Math.random() - 0.5);
+                this.userAnswers = {};
+
+                this.state = 'reading_deep';
+                this.deepStartTime = performance.now();
+                this.render();
+                window.scrollTo({ top: this.container.offsetTop - 20, behavior: 'smooth' });
+                this.startTimer('deepLiveTimer', this.deepStartTime);
+                this.attachReaderTools('deepContentBox', 'deepRuler');
+                this.enableAntiCheat();
+            }
+
+            finishDeepReading() {
+                const endTime = performance.now();
+                this.deepElapsedSeconds = Math.max(1, (endTime - this.deepStartTime) / 1000);
+                this.deepWpm = Math.round((this.deepWordCount / this.deepElapsedSeconds) * 60);
+                this.stopTimer();
+                this.disableAntiCheat();
+
+                this.state = 'quiz';
+                this.render();
+                window.scrollTo({ top: this.container.offsetTop - 20, behavior: 'smooth' });
+            }
+
+            startTimer(timerElementId, startTimestamp) {
+                this.stopTimer();
+                const timerDisplay = this.container.querySelector(`#${timerElementId}`);
+                this.timerInterval = setInterval(() => {
+                    if (!timerDisplay) return;
+                    const elapsed = (performance.now() - startTimestamp) / 1000;
+                    const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const secs = Math.floor(elapsed % 60).toString().padStart(2, '0');
+                    timerDisplay.textContent = `${mins}:${secs}`;
+                }, 200);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            attachReaderTools(boxId, rulerId) {
+                const box = this.container.querySelector(`#${boxId}`);
+                const ruler = this.container.querySelector(`#${rulerId}`);
+                if (!box || !ruler) return;
+
+                // Mouse follow for ruler
+                box.addEventListener('mousemove', (e) => {
+                    if (!this.guideRulerActive) return;
+                    const rect = box.getBoundingClientRect();
+                    const topPos = e.clientY - rect.top - 18;
+                    ruler.style.top = `${Math.max(0, Math.min(topPos, box.scrollHeight - 38))}px`;
+                });
+
+                // Font resize bindings
+                const btnIncrease = this.container.querySelector('#btnFontIncrease');
+                const btnDecrease = this.container.querySelector('#btnFontDecrease');
+                const btnToggleRuler = this.container.querySelector('#btnToggleRuler');
+
+                if (btnIncrease) {
+                    btnIncrease.addEventListener('click', () => {
+                        if (this.readerFontSize < 22) {
+                            this.readerFontSize += 1.5;
+                            box.style.fontSize = `${this.readerFontSize}px`;
+                        }
+                    });
+                }
+
+                if (btnDecrease) {
+                    btnDecrease.addEventListener('click', () => {
+                        if (this.readerFontSize > 14) {
+                            this.readerFontSize -= 1.5;
+                            box.style.fontSize = `${this.readerFontSize}px`;
+                        }
+                    });
+                }
+
+                if (btnToggleRuler) {
+                    btnToggleRuler.addEventListener('click', () => {
+                        this.guideRulerActive = !this.guideRulerActive;
+                        ruler.style.display = this.guideRulerActive ? 'block' : 'none';
+                        btnToggleRuler.classList.toggle('bg-blue-50', this.guideRulerActive);
+                        btnToggleRuler.classList.toggle('text-blue-700', this.guideRulerActive);
+                    });
+                }
+            }
+
+            selectAnswer(qIndex, optionIndex) {
+                this.userAnswers[qIndex] = optionIndex;
+                this.checkQuizCompleteness();
+            }
+
+            checkQuizCompleteness() {
+                const answeredCount = Object.keys(this.userAnswers).length;
+                const total = this.activeQuestions.length;
+                const btn = this.container.querySelector('#btnSubmitQuiz');
+                const progressBadge = this.container.querySelector('#quizProgressBadge');
+                
+                if (progressBadge) {
+                    progressBadge.textContent = `${answeredCount} از ${total} پاسخ داده شده`;
+                }
+
+                if (btn) {
+                    if (answeredCount === total) {
+                        btn.removeAttribute('disabled');
+                        btn.classList.remove('opacity-40', 'cursor-not-allowed');
+                        btn.classList.add('hover:bg-slate-800');
+                    } else {
+                        btn.setAttribute('disabled', 'true');
+                        btn.classList.add('opacity-40', 'cursor-not-allowed');
+                        btn.classList.remove('hover:bg-slate-800');
+                    }
+                }
+            }
+
+            evaluateQuiz() {
+                let correctCount = 0;
+                const totalQuestions = this.activeQuestions.length;
+
+                this.activeQuestions.forEach((q, idx) => {
+                    if (this.userAnswers[idx] === q.correctAnswer) {
+                        correctCount++;
+                    }
+                });
+
+                const comprehensionPercent = Math.round((correctCount / totalQuestions) * 100);
+                const effectiveSpeed = Math.round(this.deepWpm * (comprehensionPercent / 100));
+                const levelInfo = ReadingSpeedTest.getProficiencyLevel(effectiveSpeed);
+
+                const finalResult = {
+                    date: new Date().toLocaleDateString('fa-IR'),
+                    timestamp: Date.now(),
+                    scanWpm: this.scanWpm,
+                    deepWpm: this.deepWpm,
+                    comprehensionPercent,
+                    effectiveSpeed,
+                    level: levelInfo.level,
+                    badge: levelInfo.badge,
+                    correctCount,
+                    totalQuestions,
+                    scanWordCount: this.scanWordCount,
+                    deepWordCount: this.deepWordCount
+                };
+
+                this.saveHistory(finalResult);
+
+                if (this.onComplete && typeof this.onComplete === 'function') {
+                    this.onComplete(finalResult);
+                }
+
+                this.finalResult = finalResult;
+                this.state = 'result';
+                this.render();
+                window.scrollTo({ top: this.container.offsetTop - 20, behavior: 'smooth' });
+            }
+
+            saveHistory(result) {
+                try {
+                    const existing = JSON.parse(localStorage.getItem('reading_speed_history') || '[]');
+                    const itemToSave = {
+                        date: result.date,
+                        timestamp: result.timestamp,
+                        wordCount: result.deepWordCount,
+                        rawWpm: result.scanWpm,
+                        comprehensionPercent: result.comprehensionPercent,
+                        effectiveSpeed: result.effectiveSpeed,
+                        level: result.level
+                    };
+                    existing.push(itemToSave);
+                    localStorage.setItem('reading_speed_history', JSON.stringify(existing));
+                } catch (e) {
+                    console.error("خطا در ذخیره‌سازی داده‌های آزمون:", e);
+                }
+            }
+
+            bindAntiCheatMethods() {
+                this.onPreventAction = (e) => {
+                    if (this.state === 'reading_scan' || this.state === 'reading_deep') {
+                        e.preventDefault();
+                    }
+                };
+            }
+
+            enableAntiCheat() {
+                const el = this.container;
+                el.classList.add('prevent-cheat');
+                el.addEventListener('copy', this.onPreventAction);
+                el.addEventListener('cut', this.onPreventAction);
+                el.addEventListener('contextmenu', this.onPreventAction);
+            }
+
+            disableAntiCheat() {
+                const el = this.container;
+                el.classList.remove('prevent-cheat');
+                el.removeEventListener('copy', this.onPreventAction);
+                el.removeEventListener('cut', this.onPreventAction);
+                el.removeEventListener('contextmenu', this.onPreventAction);
+            }
+
+            render() {
+                this.container.innerHTML = '';
+                switch (this.state) {
+                    case 'intro':
+                        this.renderIntro();
+                        break;
+                    case 'reading_scan':
+                        this.renderReadingScan();
+                        break;
+                    case 'scan_done':
+                        this.renderScanDone();
+                        break;
+                    case 'reading_deep':
+                        this.renderReadingDeep();
+                        break;
+                    case 'quiz':
+                        this.renderQuiz();
+                        break;
+                    case 'result':
+                        this.renderResult();
+                        break;
+                }
+            }
+
+            // کامپوننت نوار پیشرفت مراحل
+            renderStepHeader(stepNumber) {
+                return `
+                    <div class="px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 rounded-full ${stepNumber === 1 ? 'bg-blue-600' : 'bg-slate-300'}"></span>
+                            <span class="${stepNumber === 1 ? 'font-bold text-slate-800' : ''}">۱. پایش چشمی</span>
+                            <span class="text-slate-300">/</span>
+                            <span class="inline-block w-2 h-2 rounded-full ${stepNumber === 2 ? 'bg-blue-600' : 'bg-slate-300'}"></span>
+                            <span class="${stepNumber === 2 ? 'font-bold text-slate-800' : ''}">۲. مطالعه تحلیلی</span>
+                            <span class="text-slate-300">/</span>
+                            <span class="inline-block w-2 h-2 rounded-full ${stepNumber === 3 ? 'bg-blue-600' : 'bg-slate-300'}"></span>
+                            <span class="${stepNumber === 3 ? 'font-bold text-slate-800' : ''}">۳. ارزیابی درک مطلب</span>
+                        </div>
+                        <span class="font-mono text-[11px] text-slate-400">Step ${stepNumber} of 3</span>
+                    </div>
+                `;
+            }
+
+            // ۱. صفحه شروع کلی آزمون
+            renderIntro() {
+                this.container.innerHTML = `
+                    <div class="p-6 sm:p-10">
+                        <div class="max-w-2xl mx-auto text-center">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-4">
+                                <i class="fa-solid fa-compass text-slate-500"></i>
+                                راهنمای پروتکل استاندارد
+                            </span>
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-3">
+                                سنجش تفکیکی مهارت خواندن
+                            </h2>
+                            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-8">
+                                در فرایند مطالعه حرفه‌ای، دو معیار متمایز وجود دارد: <strong>سرعت اسکن فیزیکی چشم</strong> و <strong>سرعت جذب معنایی اطلاعات</strong>. این سامانه با دو متن هم‌تراز و استاندارد، فاصله بین این دو شاخص را برای شما ترسیم می‌کند.
+                            </p>
+
+                            <!-- Process Cards -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-right mb-8">
+                                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-xs">
+                                    <div class="flex items-center gap-2 mb-2 text-slate-900 font-bold text-xs">
+                                        <span class="w-5 h-5 rounded bg-slate-900 text-white flex items-center justify-center text-[10px]">۱</span>
+                                        اسکن خطی بدون توقف (بدون درک)
+                                    </div>
+                                    <p class="text-[12px] text-slate-500 leading-relaxed">
+                                        متن اول را صرفاً با چشمان خود از ابتدا تا انتها با نهایت شتاب دنبال کنید. از این بخش هیچ سوالی پرسیده نمی‌شود.
+                                    </p>
+                                </div>
+
+                                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-xs">
+                                    <div class="flex items-center gap-2 mb-2 text-slate-900 font-bold text-xs">
+                                        <span class="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-[10px]">۲</span>
+                                        مطالعه ادراکی و پرسش‌نامه (با درک)
+                                    </div>
+                                    <p class="text-[12px] text-slate-500 leading-relaxed">
+                                        متن دوم هم‌تراز با متن اول است اما محتوا را دقیق بخوانید تا بلافاصله به پرسش‌های مفهومی پاسخ دهید.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button id="btnStartPhase1" class="h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2 mx-auto">
+                                <span>شروع مرحله اول (اسکن خطوط)</span>
+                                <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                this.container.querySelector('#btnStartPhase1').addEventListener('click', () => this.startScanTest());
+            }
+
+            // ۲. صفحه متن اول (سرعت بدون درک)
+            renderReadingScan() {
+                this.container.innerHTML = `
+                    ${this.renderStepHeader(1)}
+                    <div class="p-6 sm:p-8">
+                        <!-- Top Metadata & Control Bar -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                            <div>
+                                <span class="text-[11px] font-semibold text-slate-500">آزمون اسکن چشمی</span>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">${this.scanData.title}</h3>
+                            </div>
+
+                            <!-- Controls Toolbar -->
+                            <div class="flex items-center gap-2">
+                                <!-- Font Scale -->
+                                <div class="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 text-xs">
+                                    <button id="btnFontDecrease" class="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded" title="کوچک‌تر">A-</button>
+                                    <button id="btnFontIncrease" class="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded font-bold" title="بزرگ‌تر">A+</button>
+                                </div>
+
+                                <!-- Guide Ruler -->
+                                <button id="btnToggleRuler" class="h-8 px-2.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 text-xs flex items-center gap-1.5" title="خط‌کش راهنما">
+                                    <i class="fa-solid fa-ruler-horizontal text-[11px]"></i>
+                                    <span class="hidden md:inline">خط‌کش کمکی</span>
+                                </button>
+
+                                <!-- Live Timer -->
+                                <div class="h-8 px-3 rounded-lg bg-slate-900 text-white flex items-center gap-2 font-mono text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span id="scanLiveTimer">00:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reading Box Surface -->
+                        <div class="relative bg-slate-50/50 rounded-xl border border-slate-200 p-5 sm:p-8 mb-6 overflow-hidden">
+                            <div id="scanRuler" class="guide-ruler"></div>
+                            <div id="scanContentBox" class="reader-text text-slate-800 leading-[2.2] text-justify font-normal max-h-[460px] overflow-y-auto pr-1" style="font-size: ${this.readerFontSize}px;">
+                                ${this.scanData.text}
+                            </div>
+                        </div>
+
+                        <!-- Action Bar -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                            <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lock text-[10px]"></i>
+                                حجم متن: ${this.scanWordCount} کلمه | کپی‌رایت و کپی محتوا در طول ارزیابی غیرفعال است
+                            </div>
+                            <button id="btnFinishScan" class="w-full sm:w-auto h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2">
+                                <span>پایان مطالعه متن اول</span>
+                                <i class="fa-solid fa-check text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                this.container.querySelector('#btnFinishScan').addEventListener('click', () => this.finishScanTest());
+            }
+
+            // ۳. صفحه واسط میان دو فاز
+            renderScanDone() {
+                this.container.innerHTML = `
+                    <div class="p-6 sm:p-10 text-center max-w-lg mx-auto">
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center text-lg mx-auto mb-4">
+                            <i class="fa-solid fa-gauge-high"></i>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">سرعت اسکن چشمی ثبت شد</h3>
+                        <p class="text-xs text-slate-500 mb-6 font-mono text-sm">
+                            سرعت خام اسکن: <strong class="text-slate-900 font-bold">${this.scanWpm} کلمه در دقیقه</strong>
+                        </p>
+
+                        <div class="text-right p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed mb-6">
+                            <div class="font-bold text-slate-900 mb-1">دستورالعمل مرحله دوم:</div>
+                            در این مرحله، متنی با حجم و درجه سختی یکسان مطالعه خواهید کرد. تفاوت در این است که بلافاصله پس از اتمام، پرسش‌های درک مطلب آغاز خواهد شد. بنابراین ریتم مطالعه را برای دریافت و فهم دقیق جملات تنظیم کنید.
+                        </div>
+
+                        <button id="btnStartPhase2" class="h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2 mx-auto">
+                            <span>ورود به مرحله دوم (مطالعه تحلیلی)</span>
+                            <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                        </button>
+                    </div>
+                `;
+                this.container.querySelector('#btnStartPhase2').addEventListener('click', () => this.startDeepReading());
+            }
+
+            // ۴. صفحه متن دوم (سرعت با درک)
+            renderReadingDeep() {
+                this.container.innerHTML = `
+                    ${this.renderStepHeader(2)}
+                    <div class="p-6 sm:p-8">
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                            <div>
+                                <span class="text-[11px] font-semibold text-blue-700">مطالعه تحلیلی و معنادار</span>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">${this.deepData.title}</h3>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 text-xs">
+                                    <button id="btnFontDecrease" class="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded" title="کوچک‌تر">A-</button>
+                                    <button id="btnFontIncrease" class="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded font-bold" title="بزرگ‌تر">A+</button>
+                                </div>
+
+                                <button id="btnToggleRuler" class="h-8 px-2.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 text-xs flex items-center gap-1.5" title="خط‌کش راهنما">
+                                    <i class="fa-solid fa-ruler-horizontal text-[11px]"></i>
+                                    <span class="hidden md:inline">خط‌کش کمکی</span>
+                                </button>
+
+                                <div class="h-8 px-3 rounded-lg bg-blue-700 text-white flex items-center gap-2 font-mono text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-200 animate-pulse"></span>
+                                    <span id="deepLiveTimer">00:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reading Box Surface -->
+                        <div class="relative bg-slate-50/50 rounded-xl border border-slate-200 p-5 sm:p-8 mb-6 overflow-hidden">
+                            <div id="deepRuler" class="guide-ruler"></div>
+                            <div id="deepContentBox" class="reader-text text-slate-800 leading-[2.2] text-justify font-normal max-h-[460px] overflow-y-auto pr-1" style="font-size: ${this.readerFontSize}px;">
+                                ${this.deepData.text}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                            <div class="text-[11px] text-slate-500">
+                                به محض فشردن کلید، متن پنهان شده و پرسش‌نامه فعال خواهد شد.
+                            </div>
+                            <button id="btnFinishDeep" class="w-full sm:w-auto h-11 px-6 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2">
+                                <span>اتمام مطالعه و شروع پرسش‌ها</span>
+                                <i class="fa-solid fa-list-check text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                this.container.querySelector('#btnFinishDeep').addEventListener('click', () => this.finishDeepReading());
+            }
+
+            // ۵. آزمون درک مطلب با طراحی پرسش‌نامه حرفه‌ای
+            renderQuiz() {
+                const questionsHtml = this.activeQuestions.map((q, qIndex) => {
+                    let typeBadge = "";
+                    if (q.type === "fill_in_the_blank") {
+                        typeBadge = "تکمیل جای خالی";
+                    } else if (q.type === "true_false") {
+                        typeBadge = "صحیح / غلط";
+                    } else {
+                        typeBadge = "انتخاب چندگزینه‌ای";
+                    }
+
+                    const optionsHtml = q.options.map((opt, optIndex) => `
+                        <label class="group flex items-center gap-3 p-3 rounded-lg border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/80 transition-all cursor-pointer">
+                            <input type="radio" name="question_${qIndex}" value="${optIndex}" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900" ${this.userAnswers[qIndex] === optIndex ? 'checked' : ''}>
+                            <span class="text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 select-none">${opt}</span>
+                        </label>
+                    `).join('');
+
+                    return `
+                        <div class="p-4 sm:p-5 rounded-xl border border-slate-200 bg-white">
+                            <div class="flex items-center justify-between gap-2 mb-2.5">
+                                <span class="text-[11px] font-semibold text-slate-400">سوال شماره ${qIndex + 1}</span>
+                                <span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">${typeBadge}</span>
+                            </div>
+                            <h4 class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed mb-3">${q.question}</h4>
+                            <div class="grid grid-cols-1 ${q.type === 'true_false' ? 'sm:grid-cols-2' : ''} gap-2">
+                                ${optionsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                this.container.innerHTML = `
+                    ${this.renderStepHeader(3)}
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900">پرسش‌های ارزیابی ادراکی</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">پاسخ‌های خود را با دقت انتخاب کنید (بدون محدودیت زمانی)</p>
+                            </div>
+                            <span id="quizProgressBadge" class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-md">
+                                ۰ از ${this.activeQuestions.length} پاسخ داده شده
+                            </span>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            ${questionsHtml}
+                        </div>
+
+                        <div class="flex justify-end pt-2 border-t border-slate-100">
+                            <button id="btnSubmitQuiz" class="w-full sm:w-auto h-11 px-7 bg-slate-900 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2 opacity-40 cursor-not-allowed" disabled>
+                                <span>محاسبه شاخص و صدور کارنامه</span>
+                                <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                this.activeQuestions.forEach((_, qIndex) => {
+                    const radios = this.container.querySelectorAll(`input[name="question_${qIndex}"]`);
+                    radios.forEach(radio => {
+                        radio.addEventListener('change', (e) => {
+                            this.selectAnswer(qIndex, parseInt(e.target.value));
+                        });
+                    });
+                });
+
+                this.container.querySelector('#btnSubmitQuiz').addEventListener('click', () => this.evaluateQuiz());
+            }
+
+            // ۶. کارنامه نتایج با طراحی مدرن اداری
+            renderResult() {
+                const res = this.finalResult;
+                const levelData = ReadingSpeedTest.getProficiencyLevel(res.effectiveSpeed);
+                const dropPercent = Math.max(0, Math.round(((res.scanWpm - res.deepWpm) / res.scanWpm) * 100));
+
+                this.container.innerHTML = `
+                    <div class="p-6 sm:p-9">
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-5 mb-6">
+                            <div>
+                                <span class="text-[11px] font-semibold text-slate-500">گزارش سنجش مهارت خوانش</span>
+                                <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">کارنامه تفکیکی عملکرد مطالعه</h3>
+                            </div>
+                            <div class="text-left text-xs text-slate-500">
+                                <div>تاریخ آزمون: <span class="font-mono text-slate-700">${res.date}</span></div>
+                                <div>صحت پاسخ‌ها: <span class="font-bold text-slate-900">${res.correctCount} از ${res.totalQuestions}</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 3 Metric Cards Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
+                            <!-- Card 1 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white">
+                                <div class="text-[11px] font-semibold text-slate-500 mb-1">سرعت اسکن بدون درک</div>
+                                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">${res.scanWpm}</div>
+                                <div class="text-[11px] text-slate-400 mt-1">کلمه در دقیقه (WPM چشمی)</div>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white">
+                                <div class="text-[11px] font-semibold text-slate-500 mb-1">میزان درک مطلب</div>
+                                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">${res.comprehensionPercent}٪</div>
+                                <div class="text-[11px] text-slate-400 mt-1">شاخص درک تحلیلی سوالات</div>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="p-4 rounded-xl border-2 border-slate-900 bg-slate-950 text-white">
+                                <div class="text-[11px] font-semibold text-slate-300 mb-1">سرعت مطالعه با درک (مؤثر)</div>
+                                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-emerald-400">${res.effectiveSpeed}</div>
+                                <div class="text-[11px] text-slate-400 mt-1">Effective Reading Speed</div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Row -->
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2 mb-6">
+                            <div class="font-bold text-slate-900 flex items-center justify-between">
+                                <span>ارزیابی سطح: ${res.level}</span>
+                                <span class="text-[11px] font-normal text-slate-500">${res.badge}</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed">
+                                سرعت حرکت چشمی شما در فاز اسکن <strong class="text-slate-900">${res.scanWpm}</strong> کلمه در دقیقه بوده و هنگام درک عمیق به <strong class="text-slate-900">${res.deepWpm}</strong> کاهش یافته است. افت <strong>${dropPercent}٪</strong> در سرعت فیزیکی، نشان‌دهنده درگیری بهینه فرآیندهای شناختی در هنگام تحلیل متن است.
+                            </p>
+                        </div>
+
+                        <!-- Standards Table -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden mb-6 text-xs">
+                            <div class="bg-slate-50/70 p-3 font-bold text-slate-800 border-b border-slate-200">
+                                مقیاس بین‌المللی سرعت مطالعه مؤثر
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-slate-200 text-center">
+                                <div class="p-3 ${res.effectiveSpeed < 200 ? 'bg-slate-100 font-bold' : ''}">
+                                    <div class="text-slate-500 text-[11px]">کندخوان</div>
+                                    <div class="text-slate-900 font-mono mt-0.5">&lt; ۲۰۰</div>
+                                </div>
+                                <div class="p-3 ${(res.effectiveSpeed >= 200 && res.effectiveSpeed <= 300) ? 'bg-slate-100 font-bold' : ''}">
+                                    <div class="text-slate-500 text-[11px]">متوسط</div>
+                                    <div class="text-slate-900 font-mono mt-0.5">۲۰۰ تا ۳۰۰</div>
+                                </div>
+                                <div class="p-3 ${(res.effectiveSpeed > 300 && res.effectiveSpeed <= 400) ? 'bg-slate-100 font-bold' : ''}">
+                                    <div class="text-slate-500 text-[11px]">ماهر</div>
+                                    <div class="text-slate-900 font-mono mt-0.5">۳۰۰ تا ۴۰۰</div>
+                                </div>
+                                <div class="p-3 ${res.effectiveSpeed > 400 ? 'bg-slate-100 font-bold' : ''}">
+                                    <div class="text-slate-500 text-[11px]">پیشرفته</div>
+                                    <div class="text-slate-900 font-mono mt-0.5">&gt; ۴۰۰</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Control -->
+                        <div class="flex justify-center">
+                            <button id="btnRestartApp" class="h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-rotate-right text-xs"></i>
+                                <span>شروع مجدد آزمون با متون تصادفی</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                this.container.querySelector('#btnRestartApp').addEventListener('click', () => {
+                    this.state = 'intro';
+                    this.render();
+                });
+            }
+        }
+
+        /**
+         * مدیریت تاریخچه و نمودار پیشرفت (Chart.js) با طراحی پالت تیره و تمیز
+         */
+        let progressChartInstance = null;
+
+        function updateHistoryUI() {
+            const history = JSON.parse(localStorage.getItem('reading_speed_history') || '[]');
+            const tableBody = document.getElementById('historyTableBody');
+            tableBody.innerHTML = '';
+
+            if (history.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-6 px-3 text-center text-slate-400">سابقه‌ای تا این لحظه ثبت نشده است.</td>
+                    </tr>
+                `;
+            } else {
+                [...history].reverse().forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3.5 font-mono text-[11px] text-slate-500">${item.date}</td>
+                        <td class="py-2.5 px-3.5 text-slate-600">${item.wordCount}</td>
+                        <td class="py-2.5 px-3.5 font-bold text-slate-900 font-mono">${item.rawWpm}</td>
+                        <td class="py-2.5 px-3.5 font-semibold text-slate-700 font-mono">${item.comprehensionPercent}٪</td>
+                        <td class="py-2.5 px-3.5 font-bold text-slate-900 font-mono">${item.effectiveSpeed}</td>
+                        <td class="py-2.5 px-3.5"><span class="px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-700">${item.level}</span></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            renderChart(history);
+        }
+
+        function renderChart(history) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const labels = history.map((_, i) => `تست ${i + 1}`);
+            const rawWpmData = history.map(item => item.rawWpm);
+            const effectiveData = history.map(item => item.effectiveSpeed);
+            const comprehensionData = history.map(item => item.comprehensionPercent);
+
+            if (progressChartInstance) {
+                progressChartInstance.destroy();
+            }
+
+            Chart.defaults.font.family = 'Vazirmatn';
+
+            progressChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['بدون سابقه'],
+                    datasets: [
+                        {
+                            label: 'سرعت اسکن چشمی (WPM)',
+                            data: rawWpmData,
+                            borderColor: '#64748b',
+                            backgroundColor: 'transparent',
+                            tension: 0.2,
+                            borderWidth: 1.5,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'سرعت مؤثر با درک',
+                            data: effectiveData,
+                            borderColor: '#0f172a',
+                            backgroundColor: 'transparent',
+                            tension: 0.2,
+                            borderWidth: 2.2,
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'درصد درک مطلب',
+                            data: comprehensionData,
+                            borderColor: '#2563eb',
+                            borderDash: [4, 4],
+                            backgroundColor: 'transparent',
+                            tension: 0.2,
+                            borderWidth: 1.5,
+                            yAxisID: 'y1',
+                            pointRadius: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                font: { family: 'Vazirmatn', size: 11 },
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { font: { family: 'Vazirmatn', size: 10 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y: {
+                            position: 'right',
+                            title: { display: true, text: 'کلمه در دقیقه', font: { family: 'Vazirmatn', size: 10 } },
+                            ticks: { font: { family: 'Vazirmatn', size: 10 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y1: {
+                            position: 'left',
+                            max: 100,
+                            min: 0,
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'درک مطلب (٪)', font: { family: 'Vazirmatn', size: 10 } },
+                            ticks: { font: { family: 'Vazirmatn', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fullscreen Toggle
+        const fullscreenBtn = document.getElementById('fullscreenToggleBtn');
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn(`Fullscreen error: ${err.message}`);
+                });
+                fullscreenBtn.innerHTML = '<i class="fa-solid fa-compress text-[11px]"></i><span class="hidden sm:inline">خروج</span>';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand text-[11px]"></i><span class="hidden sm:inline">تمام‌صفحه</span>';
+                }
+            }
+        });
+
+        // Toggle History Box
+        const historySection = document.getElementById('historySection');
+        const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+        toggleHistoryBtn.addEventListener('click', () => {
+            historySection.classList.toggle('hidden');
+            if (!historySection.classList.contains('hidden')) {
+                updateHistoryUI();
+                historySection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Clear Storage
+        document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+            localStorage.removeItem('reading_speed_history');
+            updateHistoryUI();
+        });
+
+        // Application Bootstrap
+        window.onload = function() {
+            new ReadingSpeedTest('readingAppContainer', {
+                scanTextBank: SCAN_TEXT_BANK,
+                comprehensionTextBank: COMPREHENSION_TEXT_BANK,
+                onComplete: function() {
+                    updateHistoryUI();
+                }
+            });
+
+            updateHistoryUI();
+        };
+    </script>
+</body>
+</html>

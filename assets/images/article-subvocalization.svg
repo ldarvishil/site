@@ -1,45 +1,141 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" direction="rtl">
-  <rect width="640" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgSub" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="55%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="emeraldWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.15" />
+      <stop offset="50%" stop-color="#047857" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="amberWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b45309" stop-opacity="0.7" />
+      <stop offset="60%" stop-color="#d97706" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.05" />
+    </linearGradient>
+    <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />
+      <stop offset="70%" stop-color="#047857" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#047857" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="paperGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#cbd5e1" stroke-width="0.6" stroke-opacity="0.55" />
+    </pattern>
+  </defs>
 
-  <!-- Top Title -->
-  <text x="320" y="34" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="14.5" font-weight="800">مقایسه عصب‌شناختی «مسیر صوتی سنتی» در برابر «مسیر مستقیم دیداری»</text>
+  <!-- Editorial Paper Background -->
+  <rect width="800" height="450" rx="16" fill="url(#bgSub)" />
+  <rect width="800" height="450" rx="16" fill="url(#paperGrid)" />
 
-  <!-- TOP LANE: Traditional Subvocalization Bottleneck -->
-  <rect x="24" y="52" width="592" height="104" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5" />
-  <text x="598" y="76" text-anchor="start" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">۱. الگوی سنتی (با گفتار باطنی و تلفظ ذهنی کلمات):</text>
+  <!-- Subtle Ambient Halo -->
+  <circle cx="560" cy="225" r="190" fill="url(#eyeGlow)" />
 
-  <rect x="486" y="92" width="110" height="44" rx="8" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" />
-  <text x="541" y="119" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="700">تک‌کلمه‌خوانی چشم</text>
+  <!-- Left Panel: Fragmented Acoustic Waves (Subvocalization Bottleneck) -->
+  <g transform="translate(65, 95)">
+    <rect x="0" y="0" width="270" height="260" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <rect x="24" y="26" width="84" height="8" rx="4" fill="#b45309" fill-opacity="0.25" />
+    <circle cx="242" cy="30" r="6" fill="#d97706" />
 
-  <text x="466" y="119" text-anchor="middle" fill="#dc2626" font-size="16" font-weight="800">←</text>
+    <!-- Soundwave / Acoustic Chokepoint Bars -->
+    <g transform="translate(28, 66)">
+      <rect x="0" y="28" width="6" height="24" rx="3" fill="#d97706" opacity="0.45" />
+      <rect x="14" y="14" width="6" height="52" rx="3" fill="#b45309" opacity="0.7" />
+      <rect x="28" y="4" width="6" height="72" rx="3" fill="#b45309" opacity="0.9" />
+      <rect x="42" y="20" width="6" height="40" rx="3" fill="#d97706" opacity="0.65" />
+      <rect x="56" y="32" width="6" height="16" rx="3" fill="#d97706" opacity="0.4" />
+      <rect x="70" y="10" width="6" height="60" rx="3" fill="#b45309" opacity="0.85" />
+      <rect x="84" y="22" width="6" height="36" rx="3" fill="#d97706" opacity="0.6" />
+      <rect x="98" y="0" width="6" height="80" rx="3" fill="#b45309" />
+      <rect x="112" y="18" width="6" height="44" rx="3" fill="#d97706" opacity="0.7" />
+      <rect x="126" y="28" width="6" height="24" rx="3" fill="#d97706" opacity="0.45" />
+      <rect x="140" y="12" width="6" height="56" rx="3" fill="#b45309" opacity="0.75" />
+      <rect x="154" y="24" width="6" height="32" rx="3" fill="#d97706" opacity="0.5" />
+      <rect x="168" y="30" width="6" height="20" rx="3" fill="#d97706" opacity="0.35" />
+      <rect x="182" y="34" width="6" height="12" rx="3" fill="#d97706" opacity="0.25" />
+      <rect x="196" y="36" width="6" height="8" rx="3" fill="#d97706" opacity="0.18" />
+    </g>
 
-  <rect x="304" y="92" width="142" height="44" rx="8" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.8" />
-  <text x="375" y="113" text-anchor="middle" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">گلوگاه گفتار باطنی</text>
-  <text x="375" y="129" text-anchor="middle" fill="#b91c1c" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(تلفظ ذهنی تک‌تک حروف)</text>
+    <!-- Word-by-Word Stagnant Reading Lines with Regressions -->
+    <g transform="translate(24, 174)">
+      <rect x="0" y="0" width="38" height="10" rx="3" fill="#94a3b8" />
+      <rect x="46" y="0" width="44" height="10" rx="3" fill="#94a3b8" />
+      <rect x="98" y="0" width="34" height="10" rx="3" fill="#d97706" fill-opacity="0.55" />
+      <rect x="140" y="0" width="48" height="10" rx="3" fill="#cbd5e1" />
+      <rect x="196" y="0" width="26" height="10" rx="3" fill="#cbd5e1" />
 
-  <text x="284" y="119" text-anchor="middle" fill="#dc2626" font-size="16" font-weight="800">←</text>
+      <!-- Regression Backward Arc -->
+      <path d="M 115 -4 C 102 -20, 74 -20, 62 -4" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="3 3" />
+      <polygon points="62,-3 68,-9 60,-10" fill="#b45309" />
 
-  <rect x="42" y="92" width="222" height="44" rx="8" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" />
-  <text x="153" y="113" text-anchor="middle" fill="#991b1b" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">سقف سرعت: ۱۸۰ تا ۲۵۰ WPM</text>
-  <text x="153" y="129" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(محدود به سرعت تکلم انسان)</text>
+      <rect x="0" y="26" width="52" height="10" rx="3" fill="#cbd5e1" />
+      <rect x="60" y="26" width="36" height="10" rx="3" fill="#cbd5e1" />
+      <rect x="104" y="26" width="62" height="10" rx="3" fill="#cbd5e1" />
+      <rect x="174" y="26" width="48" height="10" rx="3" fill="#e2e8f0" />
 
-  <!-- BOTTOM LANE: Direct Visual Pathway -->
-  <rect x="24" y="172" width="592" height="106" rx="10" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5" />
-  <text x="598" y="196" text-anchor="start" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">۲. الگوی تندخوانی علمی (هدایتگر دیداری + دریافت بسته‌ای):</text>
+      <rect x="0" y="52" width="44" height="10" rx="3" fill="#e2e8f0" />
+      <rect x="52" y="52" width="58" height="10" rx="3" fill="#e2e8f0" />
+      <rect x="118" y="52" width="40" height="10" rx="3" fill="#e2e8f0" />
+    </g>
+  </g>
 
-  <rect x="466" y="212" width="130" height="46" rx="8" fill="#ffffff" stroke="#047857" stroke-width="1.8" />
-  <text x="531" y="233" text-anchor="middle" fill="#0f172a" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">دریافت بسته‌ای</text>
-  <text x="531" y="249" text-anchor="middle" fill="#047857" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="700">(۳ تا ۵ کلمه در یک نگاه)</text>
+  <!-- Center Transition Stream: Acoustic Noise Dissolving into Direct Optical Flow -->
+  <path d="M 335 200 C 375 200, 395 165, 445 165" fill="none" stroke="url(#amberWave)" stroke-width="2.5" stroke-dasharray="5 5" />
+  <path d="M 335 225 C 380 225, 400 225, 455 225" fill="none" stroke="url(#emeraldWave)" stroke-width="4" />
+  <path d="M 335 250 C 375 250, 395 285, 445 285" fill="none" stroke="url(#emeraldWave)" stroke-width="2.5" />
+  <circle cx="395" cy="225" r="16" fill="#0f172a" />
+  <path d="M 391 219 L 401 225 L 391 231 Z" fill="#10b981" />
 
-  <text x="444" y="240" text-anchor="middle" fill="#047857" font-size="16" font-weight="800">←</text>
+  <!-- Right Panel: Direct Visual-Cortical Processing & Grouped Fixations -->
+  <g transform="translate(445, 75)">
+    <rect x="0" y="0" width="290" height="300" rx="14" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
 
-  <rect x="292" y="212" width="132" height="46" rx="8" fill="#ffffff" stroke="#047857" stroke-width="1.8" />
-  <text x="358" y="233" text-anchor="middle" fill="#065f46" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12" font-weight="800">قشر بینایی مغز</text>
-  <text x="358" y="249" text-anchor="middle" fill="#475569" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="600">(پردازش مستقیم معنا)</text>
+    <!-- Stylized Optical Lens / Eye Geometry -->
+    <g transform="translate(145, 92)">
+      <path d="M -88 0 C -48 -46, 48 -46, 88 0 C 48 46, -48 46, -88 0 Z" fill="#1e293b" stroke="#10b981" stroke-width="2.2" />
+      <circle cx="0" cy="0" r="28" fill="#047857" fill-opacity="0.35" stroke="#34d399" stroke-width="1.8" />
+      <circle cx="0" cy="0" r="12" fill="#10b981" />
+      <circle cx="-5" cy="-5" r="4" fill="#ecfdf5" />
+      <!-- Peripheral Span Rays -->
+      <line x1="-112" y1="0" x2="-96" y2="0" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
+      <line x1="96" y1="0" x2="112" y2="0" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
+    </g>
 
-  <text x="270" y="240" text-anchor="middle" fill="#047857" font-size="16" font-weight="800">←</text>
+    <!-- Chunked Fixation Blocks (3 Fixations Per Line) -->
+    <g transform="translate(28, 172)">
+      <!-- Fixation Chunk 1 -->
+      <rect x="0" y="0" width="70" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+      <rect x="10" y="11" width="50" height="8" rx="4" fill="#6ee7b7" />
+      <circle cx="35" cy="-10" r="4.5" fill="#10b981" />
 
-  <rect x="42" y="212" width="208" height="46" rx="8" fill="#047857" />
-  <text x="146" y="233" text-anchor="middle" fill="#ffffff" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5" font-weight="800">جهش سرعت: ۴۵۰ تا ۶۵۰+ WPM</text>
-  <text x="146" y="249" text-anchor="middle" fill="#a7f3d0" font-family="Vazirmatn, Tahoma, sans-serif" font-size="10.5" font-weight="700">(با درک مطلب پایدار ۷۵٪ تا ۸۵٪)</text>
+      <!-- Fixation Chunk 2 -->
+      <rect x="82" y="0" width="70" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+      <rect x="92" y="11" width="50" height="8" rx="4" fill="#6ee7b7" />
+      <circle cx="117" cy="-10" r="4.5" fill="#10b981" />
+
+      <!-- Fixation Chunk 3 -->
+      <rect x="164" y="0" width="70" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+      <rect x="174" y="11" width="50" height="8" rx="4" fill="#6ee7b7" />
+      <circle cx="199" cy="-10" r="4.5" fill="#10b981" />
+
+      <!-- Smooth Saccade Arcs Linking Fixations -->
+      <path d="M 35 -10 Q 76 -30 117 -10" fill="none" stroke="#34d399" stroke-width="2" />
+      <path d="M 117 -10 Q 158 -30 199 -10" fill="none" stroke="#34d399" stroke-width="2" />
+
+      <!-- Second Line of Visual Chunks -->
+      <rect x="0" y="48" width="70" height="24" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+      <rect x="10" y="57" width="50" height="6" rx="3" fill="#94a3b8" />
+
+      <rect x="82" y="48" width="70" height="24" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+      <rect x="92" y="57" width="50" height="6" rx="3" fill="#94a3b8" />
+
+      <rect x="164" y="48" width="70" height="24" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+      <rect x="174" y="57" width="50" height="6" rx="3" fill="#94a3b8" />
+
+      <!-- Pacer Guide Bar -->
+      <line x1="0" y1="90" x2="234" y2="90" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+      <circle cx="185" cy="90" r="6" fill="#34d399" />
+    </g>
+  </g>
 </svg>

@@ -1,18 +1,19 @@
 /**
- * ذهن آزاد (azazmind) - Production Interactive Script
+ * ذهن آزاد (azazmind) - Interactive Application Script
  *
  * Modules:
  * 1. Utility Helpers (Persian/Arabic digit conversion, formatting)
- * 2. Header Scroll, Compositor Progress Bar (#27) & Active Section Spy
+ * 2. Header Scroll, Progress Bar & Active Section Spy
  * 3. Accessible Mobile Navigation Drawer (Focus Trap, Escape, Scroll Lock)
- * 4. Interactive Eye-Fixation Simulator + Technique #11: Orb on Path (getPointAtLength)
- * 5. Interactive Ebbinghaus Visualizer + Technique #15: SVG Path Draw on Scroll
- * 6. Technique #2: Dotted Path with Numbered Stations (#methodology-roadmap)
- * 7. Technique #28 & #30: Scroll Reveal & Persian Count-Up (toLocaleString('fa-IR'))
- * 8. Interactive Speed Reading & Comprehension Assessment (2 Passages, Validation, Effective WPM)
- * 9. Curriculum Tabs, Search Filter, Expand-All, Deep-Linking & Accessible Accordions
- * 10. Consultation Form (Persian/Arabic Phone Normalization, Attached Test Score, WhatsApp Follow-Up)
+ * 4. Interactive Eye-Fixation Simulator & Visual Pacer
+ * 5. Interactive Ebbinghaus Forgetting Curve Visualizer
+ * 6. Learning Roadmap Interactive Stations
+ * 7. Scroll Reveal & Persian Count-Up
+ * 8. Interactive Speed Reading & Comprehension Assessment
+ * 9. Curriculum Tabs, Search Filter, Expand-All & Accessible Accordions
+ * 10. Consultation Form & WhatsApp Follow-Up
  * 11. Smart Mobile Sticky CTA Visibility Observer
+ * 12. Blog Hub Interactive Category Filter
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCurriculumAndAccordions();
   initConsultationForm();
   initMobileStickyBarObserver();
+  initBlogCategoryFilter();
 });
 
 /* ==========================================================================
@@ -39,8 +41,6 @@ function initPainPointsMirror() {
   const badgeEl = document.getElementById('pain-diagnosis-badge');
   const titleEl = document.getElementById('pain-diagnosis-title');
   const descEl = document.getElementById('pain-diagnosis-desc');
-  const ctaBtn = document.getElementById('pain-diagnosis-cta');
-  const ctaTextEl = document.getElementById('pain-diagnosis-cta-text');
   const noteInput = document.getElementById('user-note');
 
   if (!grid || !diagnosisBox) return;
@@ -48,22 +48,30 @@ function initPainPointsMirror() {
   const cards = Array.from(grid.querySelectorAll('.pain-card'));
   const selectedPains = new Set();
 
+  const hintEl = diagnosisBox.querySelector('.pain-diagnosis-box__hint');
+
   const updateDiagnosisUI = () => {
     const count = selectedPains.size;
 
     if (count === 0) {
       diagnosisBox.classList.remove('has-selection');
-      if (badgeEl) badgeEl.textContent = 'تشخیص کارشناسی آکادمی ذهن آزاد';
+      if (badgeEl) badgeEl.textContent = 'تشخیص کارشناسی و علمی آکادمی ذهن آزاد';
+      if (hintEl) hintEl.textContent = 'برای شخصی‌سازی، روی کارت‌های بالا کلیک کنید';
       if (titleEl) {
         titleEl.textContent =
-          'تقصیر شما نیست؛ در مدرسه به ما گفته‌اند «چه بخوانیم»، اما هرگز یاد نداده‌اند «چطور مطالعه کنیم»!';
+          'تقصیر شما نیست؛ در مدرسه و دانشگاه به ما گفته‌اند «چه کتاب‌هایی بخوانیم»، اما هرگز آموزش نداده‌اند «چطور مطالعه کنیم»!';
       }
       if (descEl) {
         descEl.textContent =
-          'وقتی با همان روش تک‌کلمه‌خوانی دوران دبستان به سراغ کتاب‌های سنگین کنکور، دانشگاه و آزمون‌های تخصصی می‌روید، طبیعی است که چشمتان خسته شود، ذهنتان بپرد و مطالب فراموش شوند. روی کارت‌های بالا کلیک کنید تا چالش‌های اصلی خود را مشخص نمایید.';
+          'وقتی با همان روش تک‌کلمه‌خوانی و روخوانی خطیِ دوران ابتدایی به سراغ منابع سنگین کنکور، دروس دانشگاهی و کتاب‌های تخصصی می‌روید، کاملاً طبیعی است که چشمتان خسته شود، تمرکزتان به هم بریزد و مطالب در حافظه نماند. خبر خوب این است که تندخوانی، تمرکز و حافظه «استعداد ذاتی» نیستند؛ بلکه مهارت‌های فنی و اکتسابی هستند که در کارگاه عملی «ذهن آزاد» گام‌به‌گام در سیستم مطالعه شما نهادینه می‌شوند.';
       }
-      if (ctaTextEl) {
-        ctaTextEl.textContent = 'مشاهده علت علمی در شبیه‌ساز چشم';
+      if (noteInput) {
+        const remainingLines = noteInput.value
+          .split('\n')
+          .map((l) => l.trim())
+          .filter((l) => l && !l.startsWith('چالش‌های اصلی من در مطالعه:'));
+        noteInput.value = remainingLines.join('\n');
+        noteInput.dispatchEvent(new Event('input'));
       }
       return;
     }
@@ -72,17 +80,26 @@ function initPainPointsMirror() {
     const selectedLabels = Array.from(selectedPains);
 
     if (badgeEl) {
-      badgeEl.textContent = `${toPersianDigits(count)} دغدغه و چالش مطالعه توسط شما انتخاب شد`;
+      badgeEl.textContent = `${toPersianDigits(count)} چالش مطالعه توسط شما انتخاب شد`;
+    }
+    if (hintEl) {
+      hintEl.textContent = 'در فرم مشاوره پایین صفحه نیز به‌طور خودکار ثبت شد';
     }
     if (titleEl) {
       titleEl.textContent =
-        'حق دارید خسته شده باشید؛ اما هر ۶ مورد بالا با اصلاح عادت‌های چشم و سیستم مرور کاملاً قابل‌حل هستند!';
+        'حق دارید خسته شده باشید؛ اما تمام موارد انتخاب‌شده با اصلاح عادت‌های حرکت چشم و سیستم کدگذاری حافظه کاملاً قابل‌حل هستند!';
     }
     if (descEl) {
-      descEl.textContent = `چالش‌های انتخابی شما: «${selectedLabels.join('، ')}». این موارد نشانه کم‌هوشی یا کم‌کاری شما نیستند؛ بلکه نتیجه طبیعی قفل شدن روی الگوی مطالعه سنتی هستند و در ۲۲ سرفصل کارگاهی «ذهن آزاد» به‌صورت ریشه‌ای برطرف می‌شوند.`;
+      descEl.textContent = `چالش‌های انتخابی شما: «${selectedLabels.join('، ')}». این موارد نشانه کم‌هوشی یا کم‌کاری شما نیستند؛ بلکه نتیجه طبیعی قفل شدن روی الگوی مطالعه سنتی هستند و در ۴ فاز عملی و ۲۲ سرفصل کارگاهی «ذهن آزاد» زیر نظر استاد فاطمه آزادخواه به‌صورت ریشه‌ای برطرف می‌شوند.`;
     }
-    if (ctaTextEl) {
-      ctaTextEl.textContent = `مشاهده علت علمی این ${toPersianDigits(count)} چالش در شبیه‌ساز چشم`;
+    if (noteInput) {
+      const painLine = `چالش‌های اصلی من در مطالعه: ${selectedLabels.join('، ')}`;
+      const existingLines = noteInput.value
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l && !l.startsWith('چالش‌های اصلی من در مطالعه:'));
+      noteInput.value = [...existingLines, painLine].join('\n');
+      noteInput.dispatchEvent(new Event('input'));
     }
   };
 
@@ -111,22 +128,11 @@ function initPainPointsMirror() {
 
     card.addEventListener('click', (e) => {
       if (e.target.closest('a')) return;
-      // Don't toggle while the visitor is selecting the quote text
       const selection = window.getSelection ? String(window.getSelection()).trim() : '';
       if (selection.length > 0) return;
       toggleCard();
     });
   });
-
-  if (ctaBtn) {
-    ctaBtn.addEventListener('click', () => {
-      if (selectedPains.size > 0 && noteInput) {
-        const listStr = Array.from(selectedPains).join('، ');
-        noteInput.value = `چالش‌های اصلی من در مطالعه: ${listStr}`;
-        noteInput.dispatchEvent(new Event('input'));
-      }
-    });
-  }
 }
 
 /* ==========================================================================
@@ -356,7 +362,7 @@ function initMobileNavigation() {
 }
 
 /* ==========================================================================
-   4. EYE-FIXATION SIMULATOR + TECHNIQUE #11: ORB ON PATH (getPointAtLength)
+   4. EYE-FIXATION SIMULATOR & VISUAL PACER
    ========================================================================== */
 
 function initEyeFixationSimulator() {
@@ -367,9 +373,16 @@ function initEyeFixationSimulator() {
   const chunks = Array.from(simContainer.querySelectorAll('.sim-chunk'));
   const words = Array.from(simContainer.querySelectorAll('.sim-word'));
   const captionEl = document.getElementById('eye-sim-caption');
+  const liveStatusEl = document.getElementById('eye-sim-live-status');
   const stopsEl = document.getElementById('sim-metric-stops');
+  const stopsTagEl = document.getElementById('sim-metric-stops-tag');
+  const stopsSubEl = document.getElementById('sim-metric-stops-sub');
   const wpmEl = document.getElementById('sim-metric-wpm');
+  const wpmTagEl = document.getElementById('sim-metric-wpm-tag');
+  const wpmSubEl = document.getElementById('sim-metric-wpm-sub');
   const focusEl = document.getElementById('sim-metric-focus');
+  const focusTagEl = document.getElementById('sim-metric-focus-tag');
+  const focusSubEl = document.getElementById('sim-metric-focus-sub');
 
   // Technique #11: Orb on SVG Path elements
   const pacerSvg = document.getElementById('eye-sim-pacer-svg');
@@ -442,14 +455,27 @@ function initEyeFixationSimulator() {
     stepIndex = 0;
     const shouldAnimate = isOnScreen && !reduceMotionQuery.matches;
 
+    simContainer.setAttribute('data-active-mode', currentMode);
+
     if (currentMode === 'chunking') {
+      if (liveStatusEl) {
+        liveStatusEl.textContent = 'الگوی فعال: دریافت ۳ عبارتی (بدون برگشت نگاه)';
+      }
       if (captionEl) {
         captionEl.innerHTML =
-          '<strong>الگوی فعال: دریافت بسته‌ای (Chunking)</strong> — چشم به‌جای توقف روی تک‌تک ۱۳ کلمه، کل سطر را تنها در <strong>۳ مکث دیداری</strong> ثبت می‌کند و درک کلی جمله افزایش می‌یابد.';
+          '<strong>الگوی فعال: دریافت بسته‌ای (Chunking)</strong> — چشم به‌جای توقف فرسایشی روی تک‌تک ۱۳ کلمه، کل سطر را تنها در <strong>۳ مکث دیداری هدفمند</strong> ثبت می‌کند؛ در نتیجه خستگی عضلات چشم به حداقل می‌رسد و مغز معنای کامل جمله را یکجا دریافت می‌کند.';
       }
-      if (stopsEl) stopsEl.textContent = '۳ توقف در سطر (کاهش خستگی چشم)';
-      if (wpmEl) wpmEl.textContent = '۵۲۰ کلمه در دقیقه';
-      if (focusEl) focusEl.textContent = 'ریتم پیوسته بدون فرصت پرش افکار';
+      if (stopsEl) stopsEl.textContent = '۳ توقف دیداری در کل سطر';
+      if (stopsTagEl) stopsTagEl.textContent = '۷۵٪ فشار کمتر';
+      if (stopsSubEl) stopsSubEl.textContent = 'حذف توقف‌های اضافی و جلوگیری از سوزش و خواب‌آلودگی چشم';
+
+      if (wpmEl) wpmEl.textContent = '۴۸۰ تا ۵۵۰ کلمه در دقیقه';
+      if (wpmTagEl) wpmTagEl.textContent = '۲.۸ برابر سریع‌تر';
+      if (wpmSubEl) wpmSubEl.textContent = 'عبور از سد گفتار باطنی و اتمام به‌موقع منابع درسی و آزمونی';
+
+      if (focusEl) focusEl.textContent = 'ریتم پیوسته بدون فرصت پرش فکر';
+      if (focusTagEl) focusTagEl.textContent = 'تمرکز قفل‌شده';
+      if (focusSubEl) focusSubEl.textContent = 'پر شدن ظرفیت پردازش مغز با عبارات معنادار و درک عمیق‌تر متن';
 
       if (chunks.length > 0) {
         chunks[0].classList.add('is-focused');
@@ -466,13 +492,24 @@ function initEyeFixationSimulator() {
         }, 950);
       }
     } else {
+      if (liveStatusEl) {
+        liveStatusEl.textContent = 'الگوی فعال: تک‌کلمه‌خوانی سنتی + برگشت چشم (Regression)';
+      }
       if (captionEl) {
         captionEl.innerHTML =
-          '<strong>الگوی فعال: مطالعه سنتی (کلمه‌خوانی + برگشت نگاه)</strong> — چشم روی تک‌تک ۱۳ واژه مکث می‌کند، در میانه سطر به عقب برمی‌گردد (Regression) و سرعت به سقف گفتار باطنی محدود می‌شود.';
+          '<strong>الگوی فعال: مطالعه سنتی (کلمه‌خوانی + برگشت نگاه)</strong> — چشم روی تک‌تک ۱۳ واژه مکث می‌کند، در میانه سطر به عقب برمی‌گردد (Regression) و سرعت مطالعه به سقف سرعت گفتار باطنی محدود می‌شود.';
       }
-      if (stopsEl) stopsEl.textContent = '۱۳ توقف + برگشت به عقب (خستگی زودرس)';
-      if (wpmEl) wpmEl.textContent = '۱۸۰ کلمه در دقیقه';
-      if (focusEl) focusEl.textContent = 'مستعد سرگردانی ذهن در مکث‌های طولانی';
+      if (stopsEl) stopsEl.textContent = '۱۳ توقف + برگشت مکرر به عقب';
+      if (stopsTagEl) stopsTagEl.textContent = 'خستگی زودرس';
+      if (stopsSubEl) stopsSubEl.textContent = 'فشار سنگین به عضلات حرکتی چشم و سنگینی پلک در کمتر از ۳۰ دقیقه';
+
+      if (wpmEl) wpmEl.textContent = '۱۵۰ تا ۱۸۰ کلمه در دقیقه';
+      if (wpmTagEl) wpmTagEl.textContent = 'قفل روی گفتار باطنی';
+      if (wpmSubEl) wpmSubEl.textContent = 'کندی شدید پیشروی در کتاب‌ها و عقب ماندن از بودجه‌بندی برنامه';
+
+      if (focusEl) focusEl.textContent = 'مستعد سرگردانی ذهن و پرش افکار';
+      if (focusTagEl) focusTagEl.textContent = 'تمرکز شکننده';
+      if (focusSubEl) focusSubEl.textContent = 'ایجاد فضای خالی در مغز به دلیل کندی چشم و قطع شدن زنجیره معنا';
 
       if (words.length > 0) {
         words[0].classList.add('is-focused');
@@ -543,7 +580,7 @@ function initEyeFixationSimulator() {
 
 
 /* ==========================================================================
-   5. EBBINGHAUS VISUALIZER + TECHNIQUE #15: SVG PATH DRAW ON SCROLL
+   5. EBBINGHAUS FORGETTING CURVE VISUALIZER
    ========================================================================== */
 
 const EBBINGHAUS_MILESTONES = [
@@ -589,7 +626,10 @@ function initEbbinghausVisualizer() {
   const widget = document.getElementById('ebbinghaus-widget');
   if (!widget) return;
 
-  const btns = Array.from(widget.querySelectorAll('.ebbinghaus-milestone-btn'));
+  const svg = document.getElementById('ebbinghaus-svg') || widget.querySelector('.ebbinghaus-svg');
+  const scrollWrap = widget.querySelector('.ebbinghaus-chart-scroll');
+  const chips = Array.from(widget.querySelectorAll('.ebbinghaus-summary-chip[data-milestone]'));
+  const axisLabels = Array.from(widget.querySelectorAll('[data-axis-milestone]'));
   const activeLine = document.getElementById('ebbinghaus-active-line');
   const pointGood = document.getElementById('ebbinghaus-point-good');
   const pointBad = document.getElementById('ebbinghaus-point-bad');
@@ -598,18 +638,27 @@ function initEbbinghausVisualizer() {
   const valGood = document.getElementById('ebbinghaus-val-good');
   const noteEl = document.getElementById('ebbinghaus-note');
 
-  // Content-first: the comparison curves are always painted (no dash-offset trick
-  // that could leave the key data invisible if the observer never fires).
+  let currentIdx = 1;
 
   const selectMilestone = (idx) => {
     const data = EBBINGHAUS_MILESTONES[idx];
     if (!data) return;
+    currentIdx = idx;
 
-    btns.forEach((btn, i) => {
-      const isSelected = i === idx;
-      btn.classList.toggle('is-active', isSelected);
-      btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    chips.forEach((chip) => {
+      const chipIdx = Number(chip.getAttribute('data-milestone'));
+      chip.classList.toggle('is-active', chipIdx === idx);
     });
+
+    axisLabels.forEach((lbl) => {
+      const lblIdx = Number(lbl.getAttribute('data-axis-milestone'));
+      lbl.setAttribute('fill', lblIdx === idx ? '#b45309' : '#0f172a');
+    });
+
+    if (scrollWrap) {
+      scrollWrap.setAttribute('aria-valuenow', String(idx));
+      scrollWrap.setAttribute('aria-valuetext', data.timeLabel);
+    }
 
     if (activeLine) {
       activeLine.setAttribute('x1', String(data.x));
@@ -631,16 +680,97 @@ function initEbbinghausVisualizer() {
     }
   };
 
-  btns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const idx = Number(btn.getAttribute('data-milestone'));
+  const getNearestMilestoneFromClientX = (clientX) => {
+    if (!svg) return currentIdx;
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width) return currentIdx;
+    const svgX = ((clientX - rect.left) / rect.width) * 520;
+    let nearestIdx = 0;
+    let minDist = Infinity;
+    EBBINGHAUS_MILESTONES.forEach((m, idx) => {
+      const dist = Math.abs(svgX - m.x);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIdx = idx;
+      }
+    });
+    return nearestIdx;
+  };
+
+  if (svg) {
+    let isPointerDown = false;
+
+    const updateFromClientX = (clientX) => {
+      const nextIdx = getNearestMilestoneFromClientX(clientX);
+      if (nextIdx !== currentIdx) {
+        selectMilestone(nextIdx);
+      }
+    };
+
+    svg.addEventListener('pointerdown', (e) => {
+      isPointerDown = true;
+      updateFromClientX(e.clientX);
+    });
+
+    svg.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'mouse' || isPointerDown) {
+        updateFromClientX(e.clientX);
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      isPointerDown = false;
+    });
+
+    svg.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches && e.touches[0]) {
+          updateFromClientX(e.touches[0].clientX);
+        }
+      },
+      { passive: true }
+    );
+
+    svg.addEventListener(
+      'touchmove',
+      (e) => {
+        if (e.touches && e.touches[0]) {
+          updateFromClientX(e.touches[0].clientX);
+        }
+      },
+      { passive: true }
+    );
+
+    svg.addEventListener('click', (e) => {
+      updateFromClientX(e.clientX);
+    });
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const idx = Number(chip.getAttribute('data-milestone'));
       if (!Number.isNaN(idx)) selectMilestone(idx);
     });
   });
+
+  if (scrollWrap) {
+    scrollWrap.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectMilestone(Math.min(EBBINGHAUS_MILESTONES.length - 1, currentIdx + 1));
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectMilestone(Math.max(0, currentIdx - 1));
+      }
+    });
+  }
+
+  selectMilestone(currentIdx);
 }
 
 /* ==========================================================================
-   6. TECHNIQUE #2: DOTTED PATH WITH NUMBERED STATIONS (#methodology-roadmap)
+   6. LEARNING ROADMAP INTERACTIVE STATIONS
    ========================================================================== */
 
 function initStationsRoadmap() {
@@ -701,7 +831,7 @@ function initStationsRoadmap() {
 }
 
 /* ==========================================================================
-   7. TECHNIQUE #28 & #30: REVEAL ON SCROLL & PERSIAN COUNT-UP
+   7. REVEAL ON SCROLL & PERSIAN COUNT-UP
    ========================================================================== */
 
 function initScrollRevealAndCountUp() {
@@ -709,7 +839,7 @@ function initScrollRevealAndCountUp() {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Technique #30: Persian Count Up (toLocaleString('fa-IR'))
+  // Persian Count Up
   const countElements = Array.from(document.querySelectorAll('[data-count-target]'));
   if (countElements.length > 0 && !prefersReducedMotion) {
     const countObserver = new IntersectionObserver(
@@ -754,7 +884,7 @@ function initScrollRevealAndCountUp() {
 
   const revealTargets = Array.from(
     document.querySelectorAll(
-      '#pain-points .card, #courses .course-card, #outcomes .outcome-card, #audience .card, #methodology .method-card, #social-proof .testimonial-card, #scientific-basis .citation-card, #articles .article-card'
+      '#pain-points .card, #courses .course-card, #outcomes .outcome-card, #audience .card, #methodology .method-card, #social-proof .testimonial-card, #scientific-basis .citation-card, #blog .citation-card, #articles .article-card'
     )
   );
 
@@ -778,351 +908,1114 @@ function initScrollRevealAndCountUp() {
   revealTargets.forEach((el) => revealObserver.observe(el));
 }
 
-/* ==========================================================================
-   8. INTERACTIVE SPEED READING & COMPREHENSION ASSESSMENT
+/*/* ==========================================================================
+   8. INTERACTIVE SPEED READING & COMPREHENSION ASSESSMENT (TWO-PHASE RS)
    ========================================================================== */
 
-const PASSAGES_DATA = {
-  cognitive: {
-    id: 'cognitive',
-    wordCount: 171,
-    text: 'مغز انسان ساختاری شگفت‌انگیز برای دریافت و پردازش الگوهای بصری دارد، اما اکثر افراد در سیستم سنتی به گونه‌ای آموزش دیده‌اند که کلمات را تک‌به‌تک و همراه با صدایی خاموش در ذهن خود زمزمه می‌کنند. این پدیده که در علم عصب‌شناسی و زبان‌شناسی به «گفتار باطنی» یا Subvocalization معروف است، گلوگاه اصلی محدودیت سرعت مطالعه در بیش از ۹۰ درصد افراد جامعه به شمار می‌رود؛ زیرا سرعت ادای ذهنی کلمات معمولاً از مرز ۲۰۰ تا ۲۵۰ کلمه در دقیقه فراتر نمی‌رود. در متدولوژی نوین تندخوانی، تمرینات هدفمند به فرد می‌آموزند که چشم‌ها به جای توقف مکرر بر روی تک‌تک حروف، بسته‌های معنایی یا کلمات را به صورت تصویری ثبت کنند و پیام مستقیماً به قشر بینایی مغز منتقل شود. در این شیوه، نه تنها درک مطلب کاهش نمی‌یابد، بلکه به دلیل کاهش چشمگیر پرش افکار و حفظ ریتم یکنواخت تمرکز، میزان یادگیری عمیق در سطح استاندارد ۷۵ تا ۸۵ درصد تثبیت می‌گردد. همچنین استفاده از ساختار مرورهای زمان‌بندی‌شده ابینگهاوس، اطلاعات خوانده‌شده را از حافظه کوتاه‌مدت به بایگانی بلندمدت مغز منتقل می‌سازد.',
+const SCAN_TEXT_BANK = [
+  {
+    id: 'scan_1',
+    title: 'شگفتی‌های ناشناخته زیست‌شناسی اعماق اقیانوس‌ها',
+    text: 'ژرفای اقیانوس‌ها یکی از کم‌شناخته‌شده‌ترین و اسرارآمیزترین زیست‌بوم‌های کره زمین محسوب می‌شود. در ژرفای بیش از دو هزار متری، جایی که نور خورشید توان نفوذ ندارد و تاریکی مطلق حکم‌فرماست، جاندارانی با سازگاری‌های زیستی خارق‌العاده حیات یافته‌اند. فشار خردکننده آب در این لایه‌ها صدها برابر فشار هوا در سطح زمین است، با این حال ساختار انعطاف‌پذیر بافت‌ها و پروتئین‌های سلولی ویژه، از متلاشی شدن این موجودات جلوگیری می‌کند. یکی از جذاب‌ترین سازوکارهای تکاملی در این قلمرو تاریک، پدیده تولید نور زیستی یا بیولومینسانس است. بسیاری از ماهیان مرکب، چترهای دریایی و شکارچیان ترسناک اعماق، از اندام‌های نورافشان خود نه تنها برای فریب طعمه‌ها بلکه به منظور جفت‌یابی و اعلام خطر به هم‌نوعان استفاده می‌کنند. علاوه بر این، در پیرامون دهانه‌های گرمابی زیردریایی، جریان‌های غنی از گوگرد و متان باعث شکل‌گیری زنجیره‌های غذایی مستقل از نور خورشید شده‌اند. در این سامانه‌ها باکتری‌های شیمیوسنتزکننده جایگزین گیاهان شده و مواد شیمیایی را به قندهای زیستی تبدیل می‌نمایند. دانشمندان بر این باورند که درک سازوکار بقای زیست در چنین شرایط سهمگین، می‌تواند کلید کشف نشانه‌های حیات احتمالی در اقمار یخ‌زده منظومه شمسی نظیر انسلادوس باشد.'
+  },
+  {
+    id: 'scan_2',
+    title: 'پدیدارشناسی معماری بومی در اقلیم‌های کویری',
+    text: 'معماری سنتی مناطق گرم و خشک ایران از شاهکارهای خردورزی انسان در سازگاری با طبیعت خشن و کم‌باران به شمار می‌رود. در ساخت این سازه‌ها، استادکاران کهن بدون دسترسی به ابزارهای مکانیکی مدرن و سوخت‌های فسیلی، سامانه‌های خنک‌کننده طبیعی خارق‌العاده‌ای ابداع نمودند. برجسته‌ترین نماد این تدبیر مهندسی، بادگیرها هستند. بادگیرها با هدایت نسیم‌های ملایم مرتفع به درون اتاق‌ها و عبور دادن آن از روی حوضچه‌های سرداب، کورانی خنک و مطبوع از طریق سرمایش تبخیری پدید می‌آوردند. همچنین دیوارهای قطور ساخته‌شده از خشت خام و کاهگل، با ظرفیت گرمایی شگفت‌انگیز خود مانع نفوذ حرارت داغ روز به داخل خانه می‌شدند و در سرمای خشک شبانگاه، این گرمای ذخیره‌شده را به آرامی به فضای داخلی بازمی‌تاباندند. کوچه‌های سرپوشیده و پیچ‌درپیچ که با نام ساباط شناخته می‌شوند، نه‌تنها از رهگذران در برابر تابش سوزان آفتاب ظهر محافظت می‌کردند، بلکه باعث شکستن تندبادهای شن و کاهش گردوغبار در بافت شهری می‌شدند. این الگوهای معماری هم‌اکنون به عنوان مرجعی الهام‌بخش در طراحی ساختمان‌های پایدار، دوستدار محیط زیست و کم‌مصرف در دانشگاه‌های معتبر جهان مورد پژوهش گسترده قرار دارند.'
+  }
+];
+
+const COMPREHENSION_TEXT_BANK = [
+  {
+    id: 'comp_1',
+    title: 'روان‌شناسی تصمیم‌گیری و خطاهای شناختی ذهن',
+    text: 'ذهن انسان با وجود پیشرفت‌های شگرف فکری، در فرایند قضاوت و تصمیم‌گیری تحت تاثیر خطاهای شناختی نظام‌مند قرار دارد. بر اساس نظریه دوگانه اندیشیدن، انسان دارای دو سامانه پردازشی است؛ سامانه نخست که شهودی، خودکار و با سرعت فوق‌العاده عمل می‌کند و سامانه دوم که منطقی، کند، تحلیلی و نیازمند صرف انرژی ذهنی فراوان است. بسیاری از لغزش‌های تصمیم‌گیری زمانی رخ می‌دهند که سامانه نخست به جای سامانه دوم فرماندهی اندیشه را به دست می‌گیرد. یکی از شناخته‌شده‌ترین این دام‌ها، «خطای تایید» است؛ گرایشی ناخودآگاه که در آن فرد صرفاً به جستجو و پذیرش شواهدی می‌پردازد که باورهای پیشین او را تایید کنند و اطلاعات متناقض را به سادگی نادیده می‌گیرد. خطای دیگر «لنگراندازی» نام دارد که طی آن، نخستین عدد یا اطلاعی که ذهن دریافت می‌کند مبنای تخمین‌های بعدی قرار می‌گیرد، حتی اگر آن داده کاملاً بی‌ربط باشد. همچنین «خطای هزینه غرق‌شده» باعث می‌شود افراد به سرمایه‌گذاری روی پروژه‌های ناموفق کاری یا روابط فرسایشی ادامه دهند صرفاً به دلیل منابع مالی یا زمانی که در گذشته برای آن فدا کرده‌اند. شناخت این خطاهای پنهان گامی حیاتی در بهبود مدیریت فردی و تصمیم‌گیری‌های کلان سازمانی به شمار می‌رود.',
     questions: [
       {
-        title: '۱. طبق متن، مهم‌ترین عامل و گلوگاه محدودکننده سرعت مطالعه در سیستم سنتی چیست؟',
-        options: {
-          a: 'ضعف بینایی و عدم تمرینات ورزشی چشم',
-          b: 'گفتار باطنی (Subvocalization) و تلفظ صوتی کلمات در ذهن',
-          c: 'پیچیدگی گرامری و ساختار جملات فارسی'
-        },
-        correct: 'b'
+        type: 'multiple_choice',
+        question: 'بر اساس متن، ویژگی اصلی «سامانه نخست» در مدل دوگانه اندیشیدن چیست؟',
+        options: ['کند، تحلیلی و با تمرکز بالا', 'خودکار، شهودی و بسیار سریع', 'مبتنی بر منطق ریاضی و بدون خطا', 'وابسته به صرف انرژی ذهنی زیاد'],
+        correctAnswer: 1
       },
       {
-        title: '۲. در روش تندخوانی علمی، اطلاعات متن مستقیماً به کدام بخش مغز منتقل می‌شود؟',
-        options: {
-          a: 'قشر بینایی مغز به صورت دریافت تصویری و بسته‌ای',
-          b: 'مرکز پردازش شنوایی جهت بازشنوایی درونی کلمات',
-          c: 'حافظه حرکتی و مراکز گفتاری'
-        },
-        correct: 'a'
+        type: 'fill_in_the_blank',
+        question: 'گرایش ناخودآگاه به پذیرش شواهدی که فقط باورهای پیشین فرد را تایید می‌کند، خطای [...] نام دارد.',
+        options: ['لنگراندازی', 'هزینه غرق‌شده', 'تایید', 'دسترس‌پذیری'],
+        correctAnswer: 2
       },
       {
-        title: '۳. بر اساس متن، درصد استاندارد درک مطلب پس از اجرای صحیح تکنیک‌ها در چه محدوده‌ای تثبیت می‌شود؟',
-        options: {
-          a: 'زیر ۴۰ درصد',
-          b: '۵۰ تا ۶۰ درصد',
-          c: '۷۵ تا ۸۵ درصد'
-        },
-        correct: 'c'
+        type: 'true_false',
+        question: 'در پدیده «خطای لنگراندازی»، ذهن همواره نخستین داده ورودی را مبنای محاسبات بعدی قرار می‌دهد.',
+        options: ['صحیح است', 'غلط است'],
+        correctAnswer: 0
+      },
+      {
+        type: 'multiple_choice',
+        question: 'علت اصلی تداوم سرمایه‌گذاری در پروژه‌های شکست‌خورده بر اثر خطای هزینه غرق‌شده چیست؟',
+        options: ['اطمینان قطعی از سودآوری آینده', 'عدم دسترسی به منابع جدید مالی', 'حسرت و تعصب روی منابع و زمانِ ازدست‌رفته گذشته', 'توصیه‌های تحلیلگران و مشاوران'],
+        correctAnswer: 2
+      },
+      {
+        type: 'true_false',
+        question: 'سامانه دوم اندیشیدن بدون هیچ‌گونه نیاز به صرف انرژی شناختی و به شکل خودکار عمل می‌کند.',
+        options: ['صحیح است', 'غلط است'],
+        correctAnswer: 1
+      },
+      {
+        type: 'fill_in_the_blank',
+        question: 'بسیاری از اشتباهات قضاوت زمانی رخ می‌دهد که سامانه نخست به جای سامانه [...] هدایت ذهن را به عهده می‌گیرد.',
+        options: ['دوم (تحلیلی)', 'هیجانی', 'خودکار', 'ناخودآگاه'],
+        correctAnswer: 0
+      },
+      {
+        type: 'multiple_choice',
+        question: 'هدف نهایی نویسنده از تشریح خطاهای شناختی چیست؟',
+        options: ['اثبات ناکارآمدی ساختار مغز انسان', 'ترویج تصمیم‌گیری صرفاً با حدس‌های شهودی', 'ارتقای کیفیت تصمیم‌گیری‌های فردی و مدیریتی با شناخت تله‌های ذهن', 'جایگزینی کامل هوش مصنوعی با مدیران'],
+        correctAnswer: 2
       }
     ]
   },
-  memory: {
-    id: 'memory',
-    wordCount: 178,
-    text: 'حافظه انسان یک انبار ایستا برای انباشتن اطلاعات نیست، بلکه شبکه‌ای پویا از ارتباطات عصبی است که بر پایه معنا، تصویر و تکرار هدفمند شکل می‌گیرد. هرمان ابینگهاوس، دانشمند برجسته روان‌شناسی تجربی، با آزمایش‌های دقیق نشان داد که مغز انسان بدون مرور اصولی، بیش از هفتاد درصد اطلاعات جدید را ظرف چهل‌وهشت ساعت نخست پس از یادگیری از دست می‌دهد؛ پدیده‌ای که در علم شناختی با نام «منحنی فراموشی» شناخته می‌شود. دلیل اصلی این فراموشی سریع، ضعف ذاتی مغز شما نیست؛ بلکه شیوه نادرست ورود اطلاعات به حافظه کوتاه‌مدت است. زمانی که مطالب را صرفاً به شکل خطی، یکنواخت و بدون درگیر کردن نیمکره راست مغز می‌خوانید، هیچ قلاب تداعی‌کننده‌ای برای بازیابی مجدد آن اطلاعات در قشر مغز ایجاد نمی‌شود. برای تبدیل اطلاعات از حافظه کوتاه‌مدت به حافظه بلندمدت پایدار، استفاده از دو تکنیک مکمل ضروری است: نخست، سازماندهی بصری مطالب در قالب «نقشه‌های ذهنی» که کل ساختار یک فصل را در یک صفحه خلاصه می‌کند؛ و دوم، اجرای چرخه «مرور با فاصله زمانی مشخص» در بازه‌های بیست‌وچهار ساعت، یک هفته و یک ماه پس از مطالعه اولیه.',
+  {
+    id: 'comp_2',
+    title: 'انقلاب ریززیواگان (میکروبیوم) و سلامت جامع نگر انسان',
+    text: 'در دهه‌های گذشته پزشکی نوین میکروب‌ها را صرفاً عوامل بیماری‌زا می‌پنداشت، اما کشف ژرفای میکروبیوم دستگاه گوارش این دیدگاه را دگرگون کرد. بدن انسان میزبان تریلیون‌ها باکتری، قارچ و ویروس مفید است که وزن کل آن‌ها گاه به بیش از دو کیلوگرم می‌رسد. این همزیستان میکروبی نه‌تنها در هضم فیبرهای پیچیده غذایی و سنتز ویتامین‌های حیاتی مانند ویتامین کا و ب۱۲ نقشی کلیدی ایفا می‌کنند، بلکه با ترشح مواد شیمیایی مستقیماً بر سیستم ایمنی و واکنش‌های التهابی نظارت دارند. ارتباط میان روده و مغز که به محور روده-مغز مشهور است، یکی از هیجان‌انگیزترین عرصه‌های دانش معاصر است. جالب اینکه حدود نود درصد از انتقال‌دهنده عصبی سروتونین که تنظیم‌کننده خلق‌وخو و احساس شادی است، در لوله گوارش و تحت تاثیر فعالیت این باکتری‌ها تولید می‌شود. رژیم‌های غذایی غنی از مواد فرآوری‌شده، استرس مزمن و مصرف بی‌رویه آنتی‌بیوتیک‌ها، این تعادل زیستی ظریف را برهم می‌زند؛ اختلالی که به نام دیس‌بیوزیس شناخته شده و با افسردگی، چاقی و بیماری‌های خودایمنی مرتبط دانسته می‌شود. بنابراین تغذیه متنوع با فیبرهای پروبیوتیک، ضامن شادابی روانی و جسمانی است.',
     questions: [
       {
-        title: '۱. طبق یافته‌های ابینگهاوس، بدون مرور اصولی چه بخشی از اطلاعات ظرف ۴۸ ساعت اول فراموش می‌شود؟',
-        options: {
-          a: 'کمتر از بیست درصد اطلاعات جدید',
-          b: 'بیش از هفتاد درصد اطلاعات جدید',
-          c: 'تمامی اطلاعات بلافاصله پس از بستن کتاب پاک می‌شوند'
-        },
-        correct: 'b'
+        type: 'multiple_choice',
+        question: 'دیدگاه جدید علم پزشکی در مقایسه با گذشته درباره میکروب‌های بدن چیست؟',
+        options: ['همه میکروب‌ها باید با آنتی‌بیوتیک از بین بروند', 'میکروب‌های مفید نقش اساسی در حفظ سلامت و ایمنی بدن دارند', 'میکروب‌ها نقشی در تولید ویتامین‌ها ندارند', 'میکروبیوم تنها در شرایط بیماری ایجاد می‌شود'],
+        correctAnswer: 1
       },
       {
-        title: '۲. بر اساس متن، دلیل اصلی فراموشی سریع مطالب پس از مطالعه خطی چیست؟',
-        options: {
-          a: 'عدم درگیری نیمکره راست مغز و نبود قلاب‌های تصویری و تداعی‌کننده',
-          b: 'کاهش قند خون در زمان مطالعه',
-          c: 'بلندخوانی متن با صدای رسا'
-        },
-        correct: 'a'
+        type: 'fill_in_the_blank',
+        question: 'حدود نود درصد از انتقال‌دهنده عصبی [...] که مسئول تنظیم خلق‌وخو و شادی است در روده ساخته می‌شود.',
+        options: ['دوپامین', 'آدرنالین', 'سروتونین', 'ملاتونین'],
+        correctAnswer: 2
       },
       {
-        title: '۳. کدام دو تکنیک مکمل برای انتقال پایدار مطالب به حافظه بلندمدت معرفی شده‌اند؟',
-        options: {
-          a: 'رونویسی خط‌به‌خط کتاب و مطالعه در شب امتحان',
-          b: 'ترسیم نقشه ذهنی (Mind Map) و اجرای مرور با فاصله زمانی مشخص',
-          c: 'حفظ طوطی‌وار جملات بدون خلاصه‌برداری'
-        },
-        correct: 'b'
+        type: 'true_false',
+        question: 'باکتری‌های روده قادرند در سنتز ویتامین‌های حیاتی نظیر ویتامین K نقش مستقیم داشته باشند.',
+        options: ['صحیح است', 'غلط است'],
+        correctAnswer: 0
+      },
+      {
+        type: 'fill_in_the_blank',
+        question: 'برهم‌خوردن تعادل ظریف میکروبی روده به اصطلاح پزشکی [...] نامیده می‌شود.',
+        options: ['دیس‌بیوزیس', 'شیمیوسنتز', 'بیولومینسانس', 'هومئوستازی'],
+        correctAnswer: 0
+      },
+      {
+        type: 'multiple_choice',
+        question: 'کدام عامل از عوامل آسیب‌رسان به تنوع باکتری‌های سودمند روده در متن شمرده شده است؟',
+        options: ['مصرف غذاهای حاوی فیبر گیاهی', 'ورزش مداوم و خواب کافی', 'مصرف بی‌رویه آنتی‌بیوتیک و غذاهای فرآوری‌شده', 'نوشیدن آب تصفیه شده'],
+        correctAnswer: 2
+      },
+      {
+        type: 'true_false',
+        question: 'طبق متن، هیچ‌گونه ارتباط شیمیایی یا عصبی مستقیمی میان دستگاه گوارش و مغز وجود ندارد.',
+        options: ['صحیح است', 'غلط است'],
+        correctAnswer: 1
+      },
+      {
+        type: 'multiple_choice',
+        question: 'میکروبیوم دستگاه گوارش چگونه بر روی چاقی و خلق‌وخوی انسان تاثیر می‌گذارد؟',
+        options: ['از طریق تنظیم سوخت‌وساز، ترشح سروتونین و ارتباط محور روده-مغز', 'تنها با ایجاد سیری کاذب در ساعات شب', 'با تخریب کامل اسیدهای آمینه ضروری', 'با تغییر رنگ پوست'],
+        correctAnswer: 0
       }
     ]
   }
-};
+];
 
 let latestSpeedTestResult = null;
 
-function initSpeedReadingTest() {
-  const stepIntro = document.getElementById('speed-test-step-intro');
-  const stepRead = document.getElementById('speed-test-step-read');
-  const stepQuiz = document.getElementById('speed-test-step-quiz');
-  const stepResults = document.getElementById('speed-test-step-results');
+class ReadingSpeedTest {
+  constructor(containerId, options = {}) {
+    this.container = document.getElementById(containerId);
+    this.scanTextBank = options.scanTextBank || SCAN_TEXT_BANK;
+    this.comprehensionTextBank = options.comprehensionTextBank || COMPREHENSION_TEXT_BANK;
+    this.onComplete = options.onComplete || null;
 
-  if (!stepIntro || !stepRead || !stepQuiz || !stepResults) return;
+    this.state = 'intro';
+    this.readerFontSize = 17;
+    this.guideRulerActive = false;
 
-  const passageBtns = Array.from(document.querySelectorAll('.passage-select-btn'));
-  const startBtn = document.getElementById('speed-test-start-btn');
-  const finishReadBtn = document.getElementById('speed-test-finish-read-btn');
-  const forceQuizBtn = document.getElementById('speed-test-force-quiz-btn');
-  const fastWarning = document.getElementById('speed-test-fast-warning');
-  const submitQuizBtn = document.getElementById('speed-test-submit-quiz-btn');
-  const restartBtn = document.getElementById('speed-test-restart-btn');
-  const applyBtn = document.getElementById('speed-test-apply-btn');
+    this.scanData = null;
+    this.scanStartTime = 0;
+    this.scanElapsedSeconds = 0;
+    this.scanWordCount = 0;
+    this.scanWpm = 0;
 
-  const timerValEl = document.getElementById('speed-test-timer-val');
-  const passageContainer = document.getElementById('speed-test-passage');
-  const fontSizeBtns = Array.from(document.querySelectorAll('.font-size-btn'));
-  const quizErrorBanner = document.getElementById('quiz-error-banner');
+    this.deepData = null;
+    this.deepStartTime = 0;
+    this.deepElapsedSeconds = 0;
+    this.deepWordCount = 0;
+    this.deepWpm = 0;
+    this.activeQuestions = [];
+    this.userAnswers = {};
 
-  const resWpmEl = document.getElementById('res-wpm-val');
-  const resEwpmEl = document.getElementById('res-ewpm-val');
-  const resCompEl = document.getElementById('res-comp-val');
-  const resRatingEl = document.getElementById('res-rating-val');
-  const resAnalysisEl = document.getElementById('res-analysis-text');
+    this.timerInterval = null;
 
-  let currentPassageKey = 'cognitive';
-  let timerInterval = null;
-  let startTimeMs = 0;
-  let elapsedSeconds = 0;
-
-  const showStep = (targetStep) => {
-    [stepIntro, stepRead, stepQuiz, stepResults].forEach((step) => {
-      if (step === targetStep) {
-        step.classList.add('is-active');
-      } else {
-        step.classList.remove('is-active');
-      }
-    });
-  };
-
-  const renderPassageAndQuestions = (key) => {
-    const data = PASSAGES_DATA[key] || PASSAGES_DATA.cognitive;
-    if (passageContainer) {
-      passageContainer.textContent = data.text;
+    if (this.container) {
+      this.bindAntiCheatMethods();
+      this.render();
     }
-
-    data.questions.forEach((q, idx) => {
-      const qNum = idx + 1;
-      const titleEl = document.getElementById(`q${qNum}-title`);
-      const optA = document.getElementById(`q${qNum}-opt-a`);
-      const optB = document.getElementById(`q${qNum}-opt-b`);
-      const optC = document.getElementById(`q${qNum}-opt-c`);
-
-      if (titleEl) titleEl.textContent = q.title;
-      if (optA) optA.textContent = q.options.a;
-      if (optB) optB.textContent = q.options.b;
-      if (optC) optC.textContent = q.options.c;
-    });
-  };
-
-  passageBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const key = btn.getAttribute('data-passage');
-      if (!key || !PASSAGES_DATA[key]) return;
-      currentPassageKey = key;
-
-      passageBtns.forEach((b) => {
-        b.classList.toggle('is-active', b === btn);
-      });
-
-      renderPassageAndQuestions(currentPassageKey);
-    });
-  });
-
-  fontSizeBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const size = btn.getAttribute('data-size');
-      fontSizeBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
-
-      if (passageContainer) {
-        passageContainer.classList.toggle('font-lg', size === 'lg');
-      }
-    });
-  });
-
-  const stopTimer = () => {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-  };
-
-  const startReading = () => {
-    renderPassageAndQuestions(currentPassageKey);
-    if (fastWarning) fastWarning.classList.remove('is-visible');
-    if (quizErrorBanner) quizErrorBanner.classList.remove('is-visible');
-
-    stepQuiz.querySelectorAll('input[type="radio"]').forEach((r) => {
-      r.checked = false;
-    });
-    stepQuiz.querySelectorAll('.question-block').forEach((block) => {
-      block.classList.remove('has-error');
-    });
-
-    elapsedSeconds = 0;
-    startTimeMs = Date.now();
-    if (timerValEl) timerValEl.textContent = formatPersianTime(0);
-
-    showStep(stepRead);
-
-    stopTimer();
-    timerInterval = setInterval(() => {
-      elapsedSeconds = Math.max(1, Math.round((Date.now() - startTimeMs) / 1000));
-      if (timerValEl) {
-        timerValEl.textContent = formatPersianTime(elapsedSeconds);
-      }
-    }, 500);
-  };
-
-  const proceedToQuiz = () => {
-    stopTimer();
-    elapsedSeconds = Math.max(8, Math.round((Date.now() - startTimeMs) / 1000));
-    showStep(stepQuiz);
-    const firstRadio = stepQuiz.querySelector('input[type="radio"]');
-    if (firstRadio) firstRadio.focus();
-  };
-
-  if (startBtn) startBtn.addEventListener('click', startReading);
-
-  if (finishReadBtn) {
-    finishReadBtn.addEventListener('click', () => {
-      const currentSec = Math.round((Date.now() - startTimeMs) / 1000);
-      if (currentSec < 10) {
-        if (fastWarning) {
-          fastWarning.classList.add('is-visible');
-          fastWarning.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-        return;
-      }
-      proceedToQuiz();
-    });
   }
 
-  if (forceQuizBtn) forceQuizBtn.addEventListener('click', proceedToQuiz);
+  static countFarsiWords(text) {
+    if (!text || typeof text !== 'string') return 0;
+    const cleanText = text
+      .replace(/[\u200C\u200B]/g, ' ')
+      .replace(/[.,،؛:!؟?()\[\]{}"'\-_/\\«»]/g, ' ')
+      .trim();
+    return cleanText.split(/\s+/).filter((word) => word.length > 0).length;
+  }
 
-  stepQuiz.querySelectorAll('input[type="radio"]').forEach((radio) => {
-    radio.addEventListener('change', () => {
-      const block = radio.closest('.question-block');
-      if (block) block.classList.remove('has-error');
-      const allAnswered = ['st-q1', 'st-q2', 'st-q3'].every((name) =>
-        Boolean(stepQuiz.querySelector(`input[name="${name}"]:checked`))
-      );
-      if (allAnswered && quizErrorBanner) {
-        quizErrorBanner.classList.remove('is-visible');
-      }
-    });
-  });
-
-  if (submitQuizBtn) {
-    submitQuizBtn.addEventListener('click', () => {
-      const data = PASSAGES_DATA[currentPassageKey] || PASSAGES_DATA.cognitive;
-      let hasUnanswered = false;
-
-      [1, 2, 3].forEach((qIdx) => {
-        const selected = stepQuiz.querySelector(`input[name="st-q${qIdx}"]:checked`);
-        const block = stepQuiz.querySelector(`.question-block[data-question-index="${qIdx}"]`);
-        if (!selected) {
-          hasUnanswered = true;
-          if (block) block.classList.add('has-error');
-        } else if (block) {
-          block.classList.remove('has-error');
-        }
-      });
-
-      if (hasUnanswered) {
-        if (quizErrorBanner) {
-          quizErrorBanner.classList.add('is-visible');
-          quizErrorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-        return;
-      }
-
-      if (quizErrorBanner) quizErrorBanner.classList.remove('is-visible');
-
-      let correctCount = 0;
-      data.questions.forEach((q, idx) => {
-        const selected = stepQuiz.querySelector(`input[name="st-q${idx + 1}"]:checked`);
-        if (selected && selected.value === q.correct) {
-          correctCount += 1;
-        }
-      });
-
-      const minutes = Math.max(8, elapsedSeconds) / 60;
-      const actualWordCount = data.text.trim().split(/\s+/).length || data.wordCount;
-      // Genuine WPM calculation: words / minutes or totalWords / (elapsedSeconds / 60)
-      const totalWords = actualWordCount;
-      const rawWpm = Math.min(950, Math.max(60, Math.round(totalWords / (elapsedSeconds / 60))));
-      const comprehensionPct = Math.round((correctCount / data.questions.length) * 100);
-      const effectiveWpm = Math.round(rawWpm * (comprehensionPct / 100));
-
-      let ratingLabel = '';
-      let analysisText = '';
-      let recommendedCourse = 'دوره جامع تندخوانی و تقویت حافظه (۲۲ سرفصل) - آمادگی کنکور و آزمون‌های تخصصی';
-
-      if (comprehensionPct < 50) {
-        ratingLabel = 'نیاز به تقویت تمرکز';
-        analysisText = `سرعت ظاهری خوانش شما ${toPersianDigits(rawWpm)} کلمه در دقیقه بود، اما با توجه به پاسخ صحیح به ${toPersianDigits(correctCount)} سؤال از ۳ سؤال (${toPersianDigits(comprehensionPct)}٪ درک مطلب)، سرعت مؤثر شما ${toPersianDigits(effectiveWpm)} کلمه در دقیقه محاسبه شد. این الگو نشان می‌دهد در حین مطالعه دچار پرش توجه می‌شوید. پیشنهاد می‌کنیم در دوره جامع ۲۲ سرفصلی، تمرکز ویژه‌ای بر سرفصل‌های فاز دوم (مدیریت تمرکز و تخلیه ذهن) و فاز چهارم (نقشه ذهنی) داشته باشید.`;
-        recommendedCourse = 'دوره جامع تندخوانی و تقویت حافظه (۲۲ سرفصل) - تمرکز عمیق و خلاصه‌سازی با Mind Map';
-      } else if (rawWpm < 180) {
-        ratingLabel = 'کلمه‌خوانی سنتی';
-        analysisText = `سرعت مطالعه شما ${toPersianDigits(rawWpm)} کلمه در دقیقه با درک مطلب ${toPersianDigits(comprehensionPct)}٪ است. دقت شما خوب است، اما عادت «گفتار باطنی» و مکث روی تک‌تک واژه‌ها سرعت شما را محدود کرده است. با تمرینات فاز اول دوره جامع (گسترش میدان دید، جداول شولت و خط‌بری دیداری) می‌توانید سرعت خود را بدون افت درک مطلب ۲ تا ۳ برابر ارتقا دهید.`;
-        recommendedCourse = 'دوره جامع تندخوانی و تقویت حافظه (۲۲ سرفصل) - رشد فردی و کتاب‌خوانی عمومی';
-      } else if (rawWpm <= 260) {
-        ratingLabel = 'میانگین استاندارد';
-        analysisText = `سرعت خام شما ${toPersianDigits(rawWpm)} کلمه در دقیقه و سرعت مؤثر شما ${toPersianDigits(effectiveWpm)} کلمه در دقیقه (${toPersianDigits(comprehensionPct)}٪ درک مطلب) است. شما پایه مطالعاتی مناسبی دارید و آماده ورود به تکنیک‌های عبارت‌خوانی (Chunking)، کاخ حافظه و سیستم مرور ابینگهاوس در دوره جامع هستید تا سرعت مطالعه خود را به بالای ۵۰۰ کلمه در دقیقه برسانید.`;
-        recommendedCourse = 'دوره جامع تندخوانی و تقویت حافظه (۲۲ سرفصل) - آمادگی کنکور و آزمون‌های تخصصی';
-      } else {
-        ratingLabel = 'مستعد تندخوانی پیشرفته';
-        analysisText = `تبریک! سرعت خوانش شما ${toPersianDigits(rawWpm)} کلمه در دقیقه با درک مطلب ${toPersianDigits(comprehensionPct)}٪ (سرعت مؤثر: ${toPersianDigits(effectiveWpm)} کلمه در دقیقه) است. شما سرعت پردازش دیداری بالایی دارید و با یادگیری تکنیک‌های پیش‌خوانی، نقشه ذهنی (Mind Map) و کاخ حافظه در فاز ۳ و ۴ دوره جامع می‌توانید منابع حجیم آزمونی و دانشگاهی را در کوتاه‌ترین زمان تثبیت کنید.`;
-        recommendedCourse = 'دوره جامع تندخوانی و تقویت حافظه (۲۲ سرفصل) - مطالعه سریع مقالات و کتب دانشگاهی';
-      }
-
-      if (resWpmEl) resWpmEl.textContent = toPersianDigits(rawWpm);
-      if (resEwpmEl) resEwpmEl.textContent = toPersianDigits(effectiveWpm);
-      if (resCompEl) resCompEl.textContent = `${toPersianDigits(comprehensionPct)}٪`;
-      if (resRatingEl) resRatingEl.textContent = ratingLabel;
-      if (resAnalysisEl) resAnalysisEl.textContent = analysisText;
-
-      latestSpeedTestResult = {
-        rawWpm,
-        effectiveWpm,
-        comprehensionPct,
-        ratingLabel,
-        recommendedCourse
+  static getProficiencyLevel(wpm) {
+    if (wpm < 200) {
+      return {
+        level: 'کندخوان',
+        badge: 'نیاز به تقویت تمرکز و کاهش مکث',
+        recommendedCourse: 'رشد فردی و کتاب‌خوانی عمومی'
       };
-
-      showStep(stepResults);
-    });
+    }
+    if (wpm >= 200 && wpm <= 300) {
+      return {
+        level: 'متوسط (طبیعی)',
+        badge: 'نزدیک به میانگین جامعه دانشگاهی',
+        recommendedCourse: 'آمادگی کنکور و آزمون‌های تخصصی'
+      };
+    }
+    if (wpm > 300 && wpm <= 400) {
+      return {
+        level: 'خواننده ماهر',
+        badge: 'تسلط عالی بر گروه‌بندی کلمات',
+        recommendedCourse: 'مطالعه سریع مقالات و کتب دانشگاهی'
+      };
+    }
+    return {
+      level: 'تندخوان پیشرفته',
+      badge: 'توانایی بالا در پردازش ادراکی هم‌زمان',
+      recommendedCourse: 'تمرکز عمیق و خلاصه‌سازی با Mind Map'
+    };
   }
 
-  if (restartBtn) {
-    restartBtn.addEventListener('click', () => {
-      stopTimer();
-      showStep(stepIntro);
-    });
+  scrollToContainer() {
+    if (!this.container) return;
+    const rect = this.container.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    window.scrollTo({ top: Math.max(0, rect.top + scrollTop - 90), behavior: 'smooth' });
   }
 
-  if (applyBtn) {
-    applyBtn.addEventListener('click', () => {
-      if (latestSpeedTestResult) {
-        attachSpeedTestToConsultationForm(latestSpeedTestResult);
+  startScanTest() {
+    const randScan = this.scanTextBank[Math.floor(Math.random() * this.scanTextBank.length)];
+    this.scanData = randScan;
+    this.scanWordCount = ReadingSpeedTest.countFarsiWords(randScan.text);
+
+    this.state = 'reading_scan';
+    this.scanStartTime = performance.now();
+    this.render();
+    this.scrollToContainer();
+    this.startTimer('scanLiveTimer', this.scanStartTime);
+    this.attachReaderTools('scanContentBox', 'scanRuler');
+    this.enableAntiCheat();
+  }
+
+  finishScanTest() {
+    const endTime = performance.now();
+    this.scanElapsedSeconds = Math.max(1, (endTime - this.scanStartTime) / 1000);
+    this.scanWpm = Math.round((this.scanWordCount / this.scanElapsedSeconds) * 60);
+    this.stopTimer();
+    this.disableAntiCheat();
+
+    this.state = 'scan_done';
+    this.render();
+    this.scrollToContainer();
+  }
+
+  startDeepReading() {
+    const randDeep =
+      this.comprehensionTextBank[Math.floor(Math.random() * this.comprehensionTextBank.length)];
+    this.deepData = randDeep;
+    this.deepWordCount = ReadingSpeedTest.countFarsiWords(randDeep.text);
+
+    this.activeQuestions = [...randDeep.questions].sort(() => Math.random() - 0.5);
+    this.userAnswers = {};
+
+    this.state = 'reading_deep';
+    this.deepStartTime = performance.now();
+    this.render();
+    this.scrollToContainer();
+    this.startTimer('deepLiveTimer', this.deepStartTime);
+    this.attachReaderTools('deepContentBox', 'deepRuler');
+    this.enableAntiCheat();
+  }
+
+  finishDeepReading() {
+    const endTime = performance.now();
+    this.deepElapsedSeconds = Math.max(1, (endTime - this.deepStartTime) / 1000);
+    this.deepWpm = Math.round((this.deepWordCount / this.deepElapsedSeconds) * 60);
+    this.stopTimer();
+    this.disableAntiCheat();
+
+    this.state = 'quiz';
+    this.render();
+    this.scrollToContainer();
+  }
+
+  startTimer(timerElementId, startTimestamp) {
+    this.stopTimer();
+    const timerDisplay = this.container.querySelector(`#${timerElementId}`);
+    this.timerInterval = setInterval(() => {
+      if (!timerDisplay) return;
+      const elapsed = (performance.now() - startTimestamp) / 1000;
+      const mins = Math.floor(elapsed / 60)
+        .toString()
+        .padStart(2, '0');
+      const secs = Math.floor(elapsed % 60)
+        .toString()
+        .padStart(2, '0');
+      timerDisplay.textContent = toPersianDigits(`${mins}:${secs}`);
+    }, 200);
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  attachReaderTools(boxId, rulerId) {
+    const box = this.container.querySelector(`#${boxId}`);
+    const ruler = this.container.querySelector(`#${rulerId}`);
+    const surface = box ? box.closest('.rs-reading-surface') : null;
+    if (!box || !ruler) return;
+
+    const updateRulerPos = (clientY) => {
+      if (!this.guideRulerActive || !surface) return;
+      const rect = surface.getBoundingClientRect();
+      const topPos = clientY - rect.top - 19;
+      ruler.style.top = `${Math.max(0, Math.min(topPos, surface.clientHeight - 38))}px`;
+    };
+
+    if (surface) {
+      surface.addEventListener('mousemove', (e) => updateRulerPos(e.clientY));
+      surface.addEventListener(
+        'touchmove',
+        (e) => {
+          if (e.touches && e.touches[0]) {
+            updateRulerPos(e.touches[0].clientY);
+          }
+        },
+        { passive: true }
+      );
+    }
+
+    const btnIncrease = this.container.querySelector('#btnFontIncrease');
+    const btnDecrease = this.container.querySelector('#btnFontDecrease');
+    const btnToggleRuler = this.container.querySelector('#btnToggleRuler');
+
+    if (btnIncrease) {
+      btnIncrease.addEventListener('click', () => {
+        if (this.readerFontSize < 22) {
+          this.readerFontSize += 1.5;
+          box.style.fontSize = `${this.readerFontSize}px`;
+        }
+      });
+    }
+
+    if (btnDecrease) {
+      btnDecrease.addEventListener('click', () => {
+        if (this.readerFontSize > 13) {
+          this.readerFontSize -= 1.5;
+          box.style.fontSize = `${this.readerFontSize}px`;
+        }
+      });
+    }
+
+    if (btnToggleRuler) {
+      if (this.guideRulerActive) {
+        ruler.style.display = 'block';
+        btnToggleRuler.classList.add('is-active');
+      }
+      btnToggleRuler.addEventListener('click', () => {
+        this.guideRulerActive = !this.guideRulerActive;
+        ruler.style.display = this.guideRulerActive ? 'block' : 'none';
+        btnToggleRuler.classList.toggle('is-active', this.guideRulerActive);
+      });
+    }
+  }
+
+  selectAnswer(qIndex, optionIndex) {
+    this.userAnswers[qIndex] = optionIndex;
+    this.checkQuizCompleteness();
+  }
+
+  checkQuizCompleteness() {
+    const answeredCount = Object.keys(this.userAnswers).length;
+    const total = this.activeQuestions.length;
+    const btn = this.container.querySelector('#btnSubmitQuiz');
+    const progressBadge = this.container.querySelector('#quizProgressBadge');
+
+    if (progressBadge) {
+      progressBadge.textContent = `${toPersianDigits(answeredCount)} از ${toPersianDigits(total)} پاسخ داده شده`;
+    }
+
+    if (btn) {
+      if (answeredCount === total) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('is-disabled');
+      } else {
+        btn.setAttribute('disabled', 'true');
+        btn.classList.add('is-disabled');
+      }
+    }
+  }
+
+  evaluateQuiz() {
+    let correctCount = 0;
+    const totalQuestions = this.activeQuestions.length;
+
+    this.activeQuestions.forEach((q, idx) => {
+      if (this.userAnswers[idx] === q.correctAnswer) {
+        correctCount++;
       }
     });
+
+    const comprehensionPercent = Math.round((correctCount / totalQuestions) * 100);
+    const effectiveSpeed = Math.round(this.deepWpm * (comprehensionPercent / 100));
+    const levelInfo = ReadingSpeedTest.getProficiencyLevel(effectiveSpeed);
+
+    const finalResult = {
+      date: new Date().toLocaleDateString('fa-IR'),
+      timestamp: Date.now(),
+      scanWpm: this.scanWpm,
+      deepWpm: this.deepWpm,
+      comprehensionPercent,
+      effectiveSpeed,
+      level: levelInfo.level,
+      badge: levelInfo.badge,
+      recommendedCourse: levelInfo.recommendedCourse,
+      correctCount,
+      totalQuestions,
+      scanWordCount: this.scanWordCount,
+      deepWordCount: this.deepWordCount
+    };
+
+    latestSpeedTestResult = {
+      rawWpm: finalResult.scanWpm,
+      effectiveWpm: finalResult.effectiveSpeed,
+      comprehensionPct: finalResult.comprehensionPercent,
+      ratingLabel: finalResult.level,
+      recommendedCourse: finalResult.recommendedCourse
+    };
+
+    this.saveHistory(finalResult);
+
+    if (this.onComplete && typeof this.onComplete === 'function') {
+      this.onComplete(finalResult);
+    }
+
+    this.finalResult = finalResult;
+    this.state = 'result';
+    this.render();
+    this.scrollToContainer();
+  }
+
+  saveHistory(result) {
+    try {
+      const existing = JSON.parse(localStorage.getItem('reading_speed_history') || '[]');
+      const itemToSave = {
+        date: result.date,
+        timestamp: result.timestamp,
+        wordCount: result.deepWordCount,
+        rawWpm: result.scanWpm,
+        comprehensionPercent: result.comprehensionPercent,
+        effectiveSpeed: result.effectiveSpeed,
+        level: result.level
+      };
+      existing.push(itemToSave);
+      localStorage.setItem('reading_speed_history', JSON.stringify(existing));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  bindAntiCheatMethods() {
+    this.onPreventAction = (e) => {
+      if (this.state === 'reading_scan' || this.state === 'reading_deep') {
+        e.preventDefault();
+      }
+    };
+  }
+
+  enableAntiCheat() {
+    const el = this.container;
+    el.classList.add('prevent-cheat');
+    el.addEventListener('copy', this.onPreventAction);
+    el.addEventListener('cut', this.onPreventAction);
+    el.addEventListener('contextmenu', this.onPreventAction);
+  }
+
+  disableAntiCheat() {
+    const el = this.container;
+    el.classList.remove('prevent-cheat');
+    el.removeEventListener('copy', this.onPreventAction);
+    el.removeEventListener('cut', this.onPreventAction);
+    el.removeEventListener('contextmenu', this.onPreventAction);
+  }
+
+  render() {
+    if (!this.container) return;
+    this.container.innerHTML = '';
+    switch (this.state) {
+      case 'intro':
+        this.renderIntro();
+        break;
+      case 'reading_scan':
+        this.renderReadingScan();
+        break;
+      case 'scan_done':
+        this.renderScanDone();
+        break;
+      case 'reading_deep':
+        this.renderReadingDeep();
+        break;
+      case 'quiz':
+        this.renderQuiz();
+        break;
+      case 'result':
+        this.renderResult();
+        break;
+    }
+  }
+
+  renderStepHeader(stepNumber) {
+    return `
+      <div class="rs-step-header">
+        <div class="rs-step-header__steps">
+          <span class="rs-step-dot ${stepNumber === 1 ? 'rs-step-dot--active' : ''}"></span>
+          <span class="${stepNumber === 1 ? 'rs-step-label--active' : ''}">۱. پایش چشمی</span>
+          <span class="rs-step-sep">/</span>
+          <span class="rs-step-dot ${stepNumber === 2 ? 'rs-step-dot--active' : ''}"></span>
+          <span class="${stepNumber === 2 ? 'rs-step-label--active' : ''}">۲. مطالعه تحلیلی</span>
+          <span class="rs-step-sep">/</span>
+          <span class="rs-step-dot ${stepNumber === 3 ? 'rs-step-dot--active' : ''}"></span>
+          <span class="${stepNumber === 3 ? 'rs-step-label--active' : ''}">۳. ارزیابی درک مطلب</span>
+        </div>
+      </div>
+    `;
+  }
+
+  renderIntro() {
+    const historySection = document.getElementById('historySection');
+    const isHistoryOpen = historySection && !historySection.hasAttribute('hidden');
+    this.container.innerHTML = `
+      <div class="rs-intro">
+        <div class="rs-intro__inner">
+          <h2 class="rs-intro__title" id="speed-test-section-title">سنجش تفکیکی مهارت خواندن</h2>
+          <p class="rs-intro__desc">
+            در فرایند مطالعه حرفه‌ای، دو معیار متمایز وجود دارد: <strong>سرعت اسکن فیزیکی چشم</strong> و <strong>سرعت جذب معنایی اطلاعات</strong>. این سامانه با دو متن هم‌تراز و استاندارد، فاصله بین این دو شاخص را برای شما ترسیم می‌کند.
+          </p>
+
+          <div class="rs-process-grid">
+            <div class="rs-process-card">
+              <div class="rs-process-card__head">
+                <span class="rs-process-card__num rs-process-card__num--dark">۱</span>
+                <span>اسکن خطی بدون توقف (بدون درک)</span>
+              </div>
+              <p class="rs-process-card__desc">
+                متن اول را صرفاً با چشمان خود از ابتدا تا انتها با نهایت شتاب دنبال کنید. از این بخش هیچ سوالی پرسیده نمی‌شود.
+              </p>
+            </div>
+
+            <div class="rs-process-card">
+              <div class="rs-process-card__head">
+                <span class="rs-process-card__num rs-process-card__num--blue">۲</span>
+                <span>مطالعه ادراکی و پرسش‌نامه (با درک)</span>
+              </div>
+              <p class="rs-process-card__desc">
+                متن دوم هم‌تراز با متن اول است اما محتوا را دقیق بخوانید تا بلافاصله به پرسش‌های مفهومی پاسخ دهید.
+              </p>
+            </div>
+          </div>
+
+          <div class="rs-intro__actions">
+            <button type="button" id="btnStartPhase1" class="rs-btn rs-btn--primary">
+              <span>شروع مرحله اول (اسکن خطوط)</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+
+            <button type="button" id="toggleHistoryBtn" class="rs-btn rs-btn--soft ${isHistoryOpen ? 'is-active' : ''}" aria-expanded="${isHistoryOpen ? 'true' : 'false'}" aria-controls="historySection">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>سوابق و نمودار</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    this.container.querySelector('#btnStartPhase1').addEventListener('click', () => this.startScanTest());
+  }
+
+  renderReadingScan() {
+    this.container.innerHTML = `
+      ${this.renderStepHeader(1)}
+      <div class="rs-stage-body">
+        <div class="rs-reader-topbar">
+          <div>
+            <span class="rs-reader-kicker">آزمون اسکن چشمی</span>
+            <h3 class="rs-reader-title">${this.scanData.title}</h3>
+          </div>
+
+          <div class="rs-reader-controls">
+            <div class="rs-font-group">
+              <button type="button" id="btnFontDecrease" class="rs-font-btn" title="کوچک‌تر">A-</button>
+              <button type="button" id="btnFontIncrease" class="rs-font-btn rs-font-btn--bold" title="بزرگ‌تر">A+</button>
+            </div>
+
+            <button type="button" id="btnToggleRuler" class="rs-ruler-btn" title="خط‌کش راهنما">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/></svg>
+              <span>خط‌کش کمکی</span>
+            </button>
+
+            <div class="rs-timer-pill">
+              <span class="rs-timer-dot"></span>
+              <span id="scanLiveTimer">۰۰:۰۰</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rs-reading-surface">
+          <div id="scanRuler" class="guide-ruler"></div>
+          <div id="scanContentBox" class="reader-text" style="font-size: ${this.readerFontSize}px;">
+            ${this.scanData.text}
+          </div>
+        </div>
+
+        <div class="rs-stage-footer">
+          <div class="rs-stage-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>حجم متن: ${toPersianDigits(this.scanWordCount)} کلمه | کپی‌رایت و کپی محتوا در طول ارزیابی غیرفعال است</span>
+          </div>
+          <button type="button" id="btnFinishScan" class="rs-btn rs-btn--primary">
+            <span>پایان مطالعه متن اول</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+    this.container.querySelector('#btnFinishScan').addEventListener('click', () => this.finishScanTest());
+  }
+
+  renderScanDone() {
+    this.container.innerHTML = `
+      <div class="rs-interstitial">
+        <div class="rs-interstitial__icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+        </div>
+        <h3 class="rs-interstitial__title">سرعت اسکن چشمی ثبت شد</h3>
+        <p class="rs-interstitial__metric">
+          سرعت خام اسکن: <strong>${toPersianDigits(this.scanWpm)} کلمه در دقیقه</strong>
+        </p>
+
+        <div class="rs-interstitial__box">
+          <div class="rs-interstitial__box-title">دستورالعمل مرحله دوم:</div>
+          در این مرحله، متنی با حجم و درجه سختی یکسان مطالعه خواهید کرد. تفاوت در این است که بلافاصله پس از اتمام، پرسش‌های درک مطلب آغاز خواهد شد. بنابراین ریتم مطالعه را برای دریافت و فهم دقیق جملات تنظیم کنید.
+        </div>
+
+        <button type="button" id="btnStartPhase2" class="rs-btn rs-btn--primary">
+          <span>ورود به مرحله دوم (مطالعه تحلیلی)</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+      </div>
+    `;
+    this.container.querySelector('#btnStartPhase2').addEventListener('click', () => this.startDeepReading());
+  }
+
+  renderReadingDeep() {
+    this.container.innerHTML = `
+      ${this.renderStepHeader(2)}
+      <div class="rs-stage-body">
+        <div class="rs-reader-topbar">
+          <div>
+            <span class="rs-reader-kicker rs-reader-kicker--blue">مطالعه تحلیلی و معنادار</span>
+            <h3 class="rs-reader-title">${this.deepData.title}</h3>
+          </div>
+
+          <div class="rs-reader-controls">
+            <div class="rs-font-group">
+              <button type="button" id="btnFontDecrease" class="rs-font-btn" title="کوچک‌تر">A-</button>
+              <button type="button" id="btnFontIncrease" class="rs-font-btn rs-font-btn--bold" title="بزرگ‌تر">A+</button>
+            </div>
+
+            <button type="button" id="btnToggleRuler" class="rs-ruler-btn" title="خط‌کش راهنما">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/></svg>
+              <span>خط‌کش کمکی</span>
+            </button>
+
+            <div class="rs-timer-pill rs-timer-pill--blue">
+              <span class="rs-timer-dot rs-timer-dot--blue"></span>
+              <span id="deepLiveTimer">۰۰:۰۰</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rs-reading-surface">
+          <div id="deepRuler" class="guide-ruler"></div>
+          <div id="deepContentBox" class="reader-text" style="font-size: ${this.readerFontSize}px;">
+            ${this.deepData.text}
+          </div>
+        </div>
+
+        <div class="rs-stage-footer">
+          <div class="rs-stage-meta">
+            <span>به محض فشردن کلید، متن پنهان شده و پرسش‌نامه فعال خواهد شد.</span>
+          </div>
+          <button type="button" id="btnFinishDeep" class="rs-btn rs-btn--blue">
+            <span>اتمام مطالعه و شروع پرسش‌ها</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+    this.container.querySelector('#btnFinishDeep').addEventListener('click', () => this.finishDeepReading());
+  }
+
+  renderQuiz() {
+    const questionsHtml = this.activeQuestions
+      .map((q, qIndex) => {
+        let typeBadge = 'انتخاب چندگزینه‌ای';
+        if (q.type === 'fill_in_the_blank') {
+          typeBadge = 'تکمیل جای خالی';
+        } else if (q.type === 'true_false') {
+          typeBadge = 'صحیح / غلط';
+        }
+
+        const optionsHtml = q.options
+          .map(
+            (opt, optIndex) => `
+              <label class="rs-option-label">
+                <input type="radio" name="question_${qIndex}" value="${optIndex}" class="rs-option-input" ${this.userAnswers[qIndex] === optIndex ? 'checked' : ''} />
+                <span class="rs-option-text">${opt}</span>
+              </label>
+            `
+          )
+          .join('');
+
+        return `
+          <div class="rs-question-card">
+            <div class="rs-question-card__meta">
+              <span class="rs-question-card__num">سوال شماره ${toPersianDigits(qIndex + 1)}</span>
+              <span class="rs-question-card__type">${typeBadge}</span>
+            </div>
+            <h4 class="rs-question-card__title">${q.question}</h4>
+            <div class="rs-options-grid ${q.type === 'true_false' ? 'rs-options-grid--two' : ''}">
+              ${optionsHtml}
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+
+    this.container.innerHTML = `
+      ${this.renderStepHeader(3)}
+      <div class="rs-stage-body">
+        <div class="rs-quiz-header">
+          <div>
+            <h3 class="rs-reader-title">پرسش‌های ارزیابی ادراکی</h3>
+            <p class="rs-topbar__subtitle">پاسخ‌های خود را با دقت انتخاب کنید (بدون محدودیت زمانی)</p>
+          </div>
+          <span id="quizProgressBadge" class="rs-quiz-progress-badge">
+            ۰ از ${toPersianDigits(this.activeQuestions.length)} پاسخ داده شده
+          </span>
+        </div>
+
+        <div class="rs-quiz-list">
+          ${questionsHtml}
+        </div>
+
+        <div class="rs-stage-footer" style="justify-content: flex-end;">
+          <button type="button" id="btnSubmitQuiz" class="rs-btn rs-btn--primary is-disabled" disabled>
+            <span>محاسبه شاخص و صدور کارنامه</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.activeQuestions.forEach((_, qIndex) => {
+      const radios = this.container.querySelectorAll(`input[name="question_${qIndex}"]`);
+      radios.forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+          this.selectAnswer(qIndex, parseInt(e.target.value, 10));
+        });
+      });
+    });
+
+    this.container.querySelector('#btnSubmitQuiz').addEventListener('click', () => this.evaluateQuiz());
+  }
+
+  renderResult() {
+    const res = this.finalResult;
+    const dropPercent = Math.max(0, Math.round(((res.scanWpm - res.deepWpm) / res.scanWpm) * 100));
+    const historySection = document.getElementById('historySection');
+    const isHistoryOpen = historySection && !historySection.hasAttribute('hidden');
+
+    this.container.innerHTML = `
+      <div class="rs-stage-body">
+        <div class="rs-result-header">
+          <div>
+            <span class="rs-reader-kicker">گزارش سنجش مهارت خوانش</span>
+            <h3 class="rs-reader-title">کارنامه تفکیکی عملکرد مطالعه</h3>
+          </div>
+          <div class="rs-result-meta">
+            <div>تاریخ آزمون: <strong>${res.date}</strong></div>
+            <div>صحت پاسخ‌ها: <strong>${toPersianDigits(res.correctCount)} از ${toPersianDigits(res.totalQuestions)}</strong></div>
+          </div>
+        </div>
+
+        <div class="rs-metrics-grid">
+          <div class="rs-metric-card">
+            <div class="rs-metric-card__label">سرعت اسکن بدون درک</div>
+            <div class="rs-metric-card__value">${toPersianDigits(res.scanWpm)}</div>
+            <div class="rs-metric-card__sub">کلمه در دقیقه (WPM چشمی)</div>
+          </div>
+
+          <div class="rs-metric-card">
+            <div class="rs-metric-card__label">میزان درک مطلب</div>
+            <div class="rs-metric-card__value">${toPersianDigits(res.comprehensionPercent)}٪</div>
+            <div class="rs-metric-card__sub">شاخص درک تحلیلی سوالات</div>
+          </div>
+
+          <div class="rs-metric-card rs-metric-card--featured">
+            <div class="rs-metric-card__label">سرعت مطالعه با درک (مؤثر)</div>
+            <div class="rs-metric-card__value">${toPersianDigits(res.effectiveSpeed)}</div>
+            <div class="rs-metric-card__sub" dir="ltr">Effective Reading Speed</div>
+          </div>
+        </div>
+
+        <div class="rs-analysis-box">
+          <div class="rs-analysis-box__head">
+            <span>ارزیابی سطح: ${res.level}</span>
+            <span class="rs-analysis-box__badge">${res.badge}</span>
+          </div>
+          <p class="rs-analysis-box__text">
+            سرعت حرکت چشمی شما در فاز اسکن <strong>${toPersianDigits(res.scanWpm)}</strong> کلمه در دقیقه بوده و هنگام درک عمیق به <strong>${toPersianDigits(res.deepWpm)}</strong> کاهش یافته است. افت <strong>${toPersianDigits(dropPercent)}٪</strong> در سرعت فیزیکی، نشان‌دهنده درگیری بهینه فرآیندهای شناختی در هنگام تحلیل متن است.
+          </p>
+        </div>
+
+        <div class="rs-scale-card">
+          <div class="rs-scale-card__head">مقیاس بین‌المللی سرعت مطالعه مؤثر</div>
+          <div class="rs-scale-grid">
+            <div class="rs-scale-cell ${res.effectiveSpeed < 200 ? 'is-current' : ''}">
+              <div class="rs-scale-cell__label">کندخوان</div>
+              <div class="rs-scale-cell__val">&lt; ۲۰۰</div>
+            </div>
+            <div class="rs-scale-cell ${res.effectiveSpeed >= 200 && res.effectiveSpeed <= 300 ? 'is-current' : ''}">
+              <div class="rs-scale-cell__label">متوسط</div>
+              <div class="rs-scale-cell__val">۲۰۰ تا ۳۰۰</div>
+            </div>
+            <div class="rs-scale-cell ${res.effectiveSpeed > 300 && res.effectiveSpeed <= 400 ? 'is-current' : ''}">
+              <div class="rs-scale-cell__label">ماهر</div>
+              <div class="rs-scale-cell__val">۳۰۰ تا ۴۰۰</div>
+            </div>
+            <div class="rs-scale-cell ${res.effectiveSpeed > 400 ? 'is-current' : ''}">
+              <div class="rs-scale-cell__label">پیشرفته</div>
+              <div class="rs-scale-cell__val">&gt; ۴۰۰</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rs-result-actions">
+          <button type="button" id="btnRestartApp" class="rs-btn rs-btn--primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+            <span>شروع مجدد آزمون با متون تصادفی</span>
+          </button>
+          <button type="button" id="toggleHistoryBtn" class="rs-btn rs-btn--soft ${isHistoryOpen ? 'is-active' : ''}" aria-expanded="${isHistoryOpen ? 'true' : 'false'}" aria-controls="historySection">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>سوابق و نمودار</span>
+          </button>
+          <a href="#consultation" id="btnAttachToConsult" class="rs-btn rs-btn--outline">
+            <span>ارسال کارنامه برای دریافت مشاوره</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </a>
+        </div>
+      </div>
+    `;
+
+    this.container.querySelector('#btnRestartApp').addEventListener('click', () => {
+      this.state = 'intro';
+      this.render();
+    });
+
+    const attachBtn = this.container.querySelector('#btnAttachToConsult');
+    if (attachBtn) {
+      attachBtn.addEventListener('click', () => {
+        if (latestSpeedTestResult) {
+          attachSpeedTestToConsultationForm(latestSpeedTestResult);
+        }
+      });
+    }
   }
 }
 
-function attachSpeedTestToConsultationForm(result) {
-  const badge = document.getElementById('consultation-test-badge');
-  const summaryText = document.getElementById('consultation-test-summary-text');
+function renderProgressChart(history) {
+  const canvas = document.getElementById('progressChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const width = Math.max(300, rect.width || 640);
+  const height = Math.max(220, rect.height || 260);
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  const fontFamily = "'Vazirmatn', sans-serif";
+  const padTop = 42;
+  const padBottom = 34;
+  const padLeft = 48;
+  const padRight = 54;
+  const plotW = Math.max(60, width - padLeft - padRight);
+  const plotH = Math.max(60, height - padTop - padBottom);
+
+  // Legend at top
+  const legendItems = [
+    { label: 'سرعت اسکن چشمی (WPM)', color: '#64748b', dashed: false },
+    { label: 'سرعت مؤثر با درک', color: '#0f172a', dashed: false },
+    { label: 'درصد درک مطلب', color: '#2563eb', dashed: true }
+  ];
+  ctx.font = `500 11px ${fontFamily}`;
+  ctx.textBaseline = 'middle';
+  let legendX = width - padRight;
+  legendItems.forEach((item) => {
+    const textW = ctx.measureText(item.label).width;
+    ctx.fillStyle = '#334155';
+    ctx.textAlign = 'right';
+    ctx.fillText(item.label, legendX, 16);
+    const lineStart = legendX - textW - 22;
+    const lineEnd = legendX - textW - 6;
+    ctx.save();
+    ctx.strokeStyle = item.color;
+    ctx.lineWidth = 2;
+    if (item.dashed) ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(lineStart, 16);
+    ctx.lineTo(lineEnd, 16);
+    ctx.stroke();
+    ctx.restore();
+    legendX = lineStart - 16;
+  });
+
+  // Compute Y scales
+  const maxWpmRaw = history.reduce(
+    (max, item) => Math.max(max, item.rawWpm || 0, item.effectiveSpeed || 0),
+    400
+  );
+  const yMaxWpm = Math.ceil(maxWpmRaw / 100) * 100;
+
+  // Grid lines & Axes labels
+  const steps = 4;
+  ctx.font = `500 10px ${fontFamily}`;
+  for (let i = 0; i <= steps; i++) {
+    const ratio = i / steps;
+    const y = padTop + plotH - ratio * plotH;
+
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y);
+    ctx.lineTo(width - padRight, y);
+    ctx.stroke();
+
+    // Right Axis: WPM
+    const wpmVal = Math.round(ratio * yMaxWpm);
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'left';
+    ctx.fillText(toPersianDigits(wpmVal), width - padRight + 8, y);
+
+    // Left Axis: Comprehension %
+    const compVal = Math.round(ratio * 100);
+    ctx.fillStyle = '#2563eb';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${toPersianDigits(compVal)}٪`, padLeft - 8, y);
+  }
+
+  if (history.length === 0) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = `500 12px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('پس از تکمیل اولین آزمون، نمودار روند پیشرفت شما در این بخش ترسیم می‌شود.', width / 2, padTop + plotH / 2);
+    return;
+  }
+
+  const count = history.length;
+  const getX = (index) =>
+    count === 1 ? padLeft + plotW / 2 : padLeft + (index / (count - 1)) * plotW;
+  const getYWpm = (val) => padTop + plotH - Math.min(1, Math.max(0, val / yMaxWpm)) * plotH;
+  const getYComp = (val) => padTop + plotH - Math.min(1, Math.max(0, val / 100)) * plotH;
+
+  // X Axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = `500 10px ${fontFamily}`;
+  ctx.textAlign = 'center';
+  history.forEach((_, idx) => {
+    const x = getX(idx);
+    ctx.fillText(`تست ${toPersianDigits(idx + 1)}`, x, height - 12);
+  });
+
+  const drawSeries = (points, color, lineWidth, dashed, radius) => {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    if (dashed) ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    points.forEach((pt, idx) => {
+      if (idx === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    points.forEach((pt) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  };
+
+  const rawPoints = history.map((item, idx) => ({
+    x: getX(idx),
+    y: getYWpm(item.rawWpm || 0)
+  }));
+  const effectivePoints = history.map((item, idx) => ({
+    x: getX(idx),
+    y: getYWpm(item.effectiveSpeed || 0)
+  }));
+  const compPoints = history.map((item, idx) => ({
+    x: getX(idx),
+    y: getYComp(item.comprehensionPercent || 0)
+  }));
+
+  drawSeries(rawPoints, '#64748b', 1.6, false, 3);
+  drawSeries(effectivePoints, '#0f172a', 2.3, false, 4);
+  drawSeries(compPoints, '#2563eb', 1.6, true, 2.5);
+}
+
+function updateHistoryUI() {
+  const tableBody = document.getElementById('historyTableBody');
+  if (!tableBody) return;
+
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('reading_speed_history') || '[]');
+  } catch {
+    history = [];
+  }
+
+  tableBody.innerHTML = '';
+
+  if (history.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="rs-table__empty">سابقه‌ای تا این لحظه ثبت نشده است.</td>
+      </tr>
+    `;
+  } else {
+    [...history].reverse().forEach((item) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.date || '-'}</td>
+        <td>${toPersianDigits(item.wordCount || 0)}</td>
+        <td><strong>${toPersianDigits(item.rawWpm || 0)}</strong></td>
+        <td>${toPersianDigits(item.comprehensionPercent || 0)}٪</td>
+        <td><strong>${toPersianDigits(item.effectiveSpeed || 0)}</strong></td>
+        <td><span class="rs-level-pill">${item.level || '-'}</span></td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  renderProgressChart(history);
+}
+
+function initSpeedReadingTest() {
+  const container = document.getElementById('readingAppContainer');
+  if (!container) return;
+
+  new ReadingSpeedTest('readingAppContainer', {
+    scanTextBank: SCAN_TEXT_BANK,
+    comprehensionTextBank: COMPREHENSION_TEXT_BANK,
+    onComplete: () => {
+      updateHistoryUI();
+      if (latestSpeedTestResult) {
+        attachSpeedTestToConsultationForm(latestSpeedTestResult, false);
+      }
+    }
+  });
+
+  const workspace = document.getElementById('speed-test-workspace');
+  const historySection = document.getElementById('historySection');
+
+  if (workspace && historySection) {
+    workspace.addEventListener('click', (e) => {
+      const toggleBtn = e.target.closest('#toggleHistoryBtn');
+      if (!toggleBtn) return;
+
+      const isHidden = historySection.hasAttribute('hidden');
+      if (isHidden) {
+        historySection.removeAttribute('hidden');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        toggleBtn.classList.add('is-active');
+        updateHistoryUI();
+        historySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        historySection.setAttribute('hidden', 'hidden');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.classList.remove('is-active');
+      }
+    });
+  }
+
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+      try {
+        localStorage.removeItem('reading_speed_history');
+      } catch {
+        // Ignore storage errors
+      }
+      updateHistoryUI();
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    if (historySection && !historySection.hasAttribute('hidden')) {
+      updateHistoryUI();
+    }
+  });
+
+  updateHistoryUI();
+}
+
+function attachSpeedTestToConsultationForm(result, focusInput = true) {
+  const noteInput = document.getElementById('user-note');
   const courseSelect = document.getElementById('course-select');
   const userNameInput = document.getElementById('user-name');
 
-  if (badge && summaryText) {
-    summaryText.textContent = ` سرعت خام: ${toPersianDigits(result.rawWpm)} کلمه/دقیقه | درک مطلب: ${toPersianDigits(result.comprehensionPct)}٪ (سرعت مؤثر: ${toPersianDigits(result.effectiveWpm)} WPM)`;
-    badge.classList.add('is-visible');
+  if (noteInput) {
+    const testResultLine = `نتیجه آزمون سرعت شما: سرعت اسکن: ${toPersianDigits(result.rawWpm)} کلمه/دقیقه | درک مطلب: ${toPersianDigits(result.comprehensionPct)}٪ (سرعت مؤثر: ${toPersianDigits(result.effectiveWpm)} WPM)`;
+    const existingLines = noteInput.value
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith('نتیجه آزمون سرعت'));
+    noteInput.value = [testResultLine, ...existingLines].join('\n');
+    noteInput.dispatchEvent(new Event('input'));
   }
 
   if (courseSelect) {
@@ -1132,9 +2025,11 @@ function attachSpeedTestToConsultationForm(result) {
     courseSelect.dispatchEvent(new Event('change'));
   }
 
-  setTimeout(() => {
-    if (userNameInput) userNameInput.focus({ preventScroll: true });
-  }, 450);
+  if (focusInput) {
+    setTimeout(() => {
+      if (userNameInput) userNameInput.focus({ preventScroll: true });
+    }, 450);
+  }
 }
 
 /* ==========================================================================
@@ -1455,6 +2350,34 @@ function initCurriculumAndAccordions() {
       }
     });
   });
+
+  const handleHashDeepLink = () => {
+    const hash = window.location.hash ? window.location.hash.slice(1) : '';
+    if (!hash) return;
+
+    if (hash.startsWith('tab-phase')) {
+      if (!isAllExpanded) {
+        activateTab(hash, false);
+      }
+      return;
+    }
+
+    if (hash.startsWith('topic-')) {
+      const topicEl = document.getElementById(hash);
+      if (!topicEl) return;
+      const parentPanel = topicEl.closest('.tab-panel');
+      if (parentPanel && !isAllExpanded) {
+        activateTab(parentPanel.id, false);
+      }
+      toggleAccordionItem(topicEl, true);
+      setTimeout(() => {
+        topicEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 120);
+    }
+  };
+
+  handleHashDeepLink();
+  window.addEventListener('hashchange', handleHashDeepLink);
 }
 
 /* ==========================================================================
@@ -1482,9 +2405,6 @@ function initConsultationForm() {
   const copyMsgBtn = document.getElementById('copy-consult-msg-btn');
   const resetFormBtn = document.getElementById('reset-form-btn');
 
-  const testBadge = document.getElementById('consultation-test-badge');
-  const clearTestBtn = document.getElementById('clear-attached-test-btn');
-
   if (!form || !nameInput || !courseSelect) return;
 
   let latestFormattedMessage = '';
@@ -1497,7 +2417,7 @@ function initConsultationForm() {
     if (leadData.phone) {
       lines.push(`شماره تماس من: ${toPersianDigits(leadData.phone)}`);
     }
-    if (leadData.speedTest) {
+    if (leadData.speedTest && (!leadData.note || !leadData.note.includes('نتیجه آزمون سرعت'))) {
       lines.push(
         `نتیجه تست سرعت مطالعه من در سایت: ${toPersianDigits(leadData.speedTest.rawWpm)} کلمه در دقیقه | درک مطلب: ${toPersianDigits(leadData.speedTest.comprehensionPct)}٪ (سرعت مؤثر: ${toPersianDigits(leadData.speedTest.effectiveWpm)} WPM)`
       );
@@ -1510,27 +2430,11 @@ function initConsultationForm() {
 
   const syncDirectQuickLink = () => {
     if (!directWhatsappQuickLink) return;
-    const draftData = {
-      name: nameInput.value.trim(),
-      phone: phoneInput ? phoneInput.value.trim() : '',
-      course: courseSelect.value,
-      note: noteInput ? noteInput.value.trim() : '',
-      speedTest: latestSpeedTestResult || null
-    };
-    const msg = buildWhatsappMessage(draftData);
     directWhatsappQuickLink.setAttribute(
       'href',
-      `https://wa.me/989121205560?text=${encodeURIComponent(msg)}`
+      'https://rubika.ir/tondkhanyazad59'
     );
   };
-
-  if (clearTestBtn && testBadge) {
-    clearTestBtn.addEventListener('click', () => {
-      latestSpeedTestResult = null;
-      testBadge.classList.remove('is-visible');
-      syncDirectQuickLink();
-    });
-  }
 
   const validateName = () => {
     const val = nameInput.value.trim();
@@ -1547,19 +2451,12 @@ function initConsultationForm() {
   };
 
   const validatePhone = () => {
-    if (!phoneInput) return true;
+    if (!phoneInput) return false;
     const rawValue = phoneInput.value.trim();
-    // Phone is optional in direct-message composer; validate only if user entered something
-    if (!rawValue) {
-      phoneInput.classList.remove('form-input--error');
-      phoneInput.setAttribute('aria-invalid', 'false');
-      if (phoneError) phoneError.classList.remove('is-visible');
-      return true;
-    }
     const normalized = toEnglishDigits(rawValue).replace(/[\s\-()]/g, '');
     const iranMobileRegex = /^(\+98|0098|98|0)?9\d{9}$/;
 
-    if (!iranMobileRegex.test(normalized)) {
+    if (!rawValue || !iranMobileRegex.test(normalized)) {
       phoneInput.classList.add('form-input--error');
       phoneInput.setAttribute('aria-invalid', 'true');
       if (phoneError) phoneError.classList.add('is-visible');
@@ -1571,45 +2468,54 @@ function initConsultationForm() {
     return true;
   };
 
+  const resetSubmitButtonLabel = () => {
+    if (submitBtnText && submitBtnText.textContent !== 'آماده ارسال پیام') {
+      submitBtnText.textContent = 'آماده ارسال پیام';
+    }
+  };
+
   nameInput.addEventListener('input', () => {
     if (nameInput.classList.contains('form-input--error')) validateName();
+    resetSubmitButtonLabel();
     syncDirectQuickLink();
   });
 
   if (phoneInput) {
     phoneInput.addEventListener('input', () => {
       if (phoneInput.classList.contains('form-input--error')) validatePhone();
+      resetSubmitButtonLabel();
       syncDirectQuickLink();
     });
   }
 
-  courseSelect.addEventListener('change', syncDirectQuickLink);
-  if (noteInput) noteInput.addEventListener('input', syncDirectQuickLink);
+  courseSelect.addEventListener('change', () => {
+    resetSubmitButtonLabel();
+    syncDirectQuickLink();
+  });
+  if (noteInput) {
+    noteInput.addEventListener('input', () => {
+      resetSubmitButtonLabel();
+      syncDirectQuickLink();
+    });
+  }
 
   const renderSuccessView = (leadData) => {
-    form.setAttribute('hidden', 'hidden');
-    if (successState) {
-      successState.classList.add('is-active');
-    }
-
     latestFormattedMessage = buildWhatsappMessage(leadData);
-    const encodedMsg = encodeURIComponent(latestFormattedMessage);
-    const waUrl = `https://wa.me/989121205560?text=${encodedMsg}`;
+    const rubikaUrl = 'https://rubika.ir/tondkhanyazad59';
 
     if (whatsappBtn) {
-      whatsappBtn.setAttribute('href', waUrl);
+      whatsappBtn.setAttribute('href', rubikaUrl);
     }
     if (directWhatsappQuickLink) {
-      directWhatsappQuickLink.setAttribute('href', waUrl);
+      directWhatsappQuickLink.setAttribute('href', rubikaUrl);
     }
 
-    if (successSummary) {
-      let text = `${leadData.name} عزیز، متن پیام مشاوره شما برای «${leadData.course}» آماده شد.`;
-      if (leadData.speedTest) {
-        text += ` کارنامه تست سرعت مطالعه شما (${toPersianDigits(leadData.speedTest.rawWpm)} کلمه/دقیقه با درک ${toPersianDigits(leadData.speedTest.comprehensionPct)}٪) نیز در متن پیام درج گردیده است.`;
-      }
-      text += ' اکنون روی دکمه زیر کلیک کنید تا گفت‌وگوی مستقیم واتساپ با فاطمه آزادخواه باز شود، یا متن را کپی نمایید.';
-      successSummary.textContent = text;
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(latestFormattedMessage).catch(() => {});
+    }
+
+    if (submitBtnText) {
+      submitBtnText.textContent = 'پیام ارسال شد';
     }
   };
 
@@ -1646,17 +2552,11 @@ function initConsultationForm() {
       submittedAt: new Date().toISOString()
     };
 
-    if (submitBtn) submitBtn.disabled = true;
-    if (submitBtnText) submitBtnText.textContent = 'در حال آماده‌سازی پیام...';
-
     try {
       localStorage.setItem(STORAGE_KEY_LEAD, JSON.stringify(leadData));
     } catch {
       // Ignore storage quota errors
     }
-
-    if (submitBtn) submitBtn.disabled = false;
-    if (submitBtnText) submitBtnText.textContent = 'آماده‌سازی و ارسال مستقیم پیام در واتساپ';
 
     renderSuccessView(leadData);
   });
@@ -1731,5 +2631,45 @@ function initMobileStickyBarObserver() {
   if (consultationSection) observer.observe(consultationSection);
   if (footerSection) observer.observe(footerSection);
 }
+
+/* ==========================================================================
+   12. BLOG HUB INTERACTIVE CATEGORY FILTER
+   ========================================================================== */
+
+function initBlogCategoryFilter() {
+  const filterBtns = Array.from(document.querySelectorAll('.category-filter-pills .filter-pill'));
+  const blogCards = Array.from(document.querySelectorAll('#articles-grid .blog-card'));
+
+  if (filterBtns.length === 0 || blogCards.length === 0) return;
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const cat = btn.getAttribute('data-filter');
+      if (!cat) return;
+      e.preventDefault();
+
+      filterBtns.forEach((b) => {
+        const isCurrent = b === btn;
+        b.classList.toggle('is-active', isCurrent);
+        if (isCurrent) {
+          b.setAttribute('aria-current', 'true');
+        } else {
+          b.removeAttribute('aria-current');
+        }
+      });
+
+      blogCards.forEach((card) => {
+        const cardCat = card.getAttribute('data-category') || '';
+        const shouldShow = cat === 'all' || cardCat === cat;
+        if (shouldShow) {
+          card.removeAttribute('hidden');
+        } else {
+          card.setAttribute('hidden', 'hidden');
+        }
+      });
+    });
+  });
+}
+
 
 

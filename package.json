@@ -1,0 +1,16 @@
+{
+  "name": "azazmind-static-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node --check server.js && node --check js/script.js && node --check js/three-scenes.js",
+    "start": "node server.js",
+    "lint": "node --check server.js && node --check js/script.js && node --check js/three-scenes.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "three": "^0.187.0"
+  }
+}
